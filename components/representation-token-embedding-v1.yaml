@@ -1,0 +1,21 @@
+schema_version: 1
+id: representation-token-embedding-v1
+kind: token-representation
+status: active
+summary: Learned token embedding shared by the recall controls.
+hypothesis:
+  claim: A shared learned representation gives each candidate the same token input capacity.
+  expected_effect: Differences in recall arise from the memory mechanism, not one-hot inputs.
+  falsifier: A matched one-hot control shows a material and consistent advantage.
+lineage:
+  basis:
+    - Standard neural sequence-model input representation.
+interfaces:
+  inputs: [token_id]
+  outputs: [token_vector]
+  state: none
+parameters:
+  vocabulary_layout: write-read-keys-values
+decision:
+  rationale: Use one comparable representation before testing memory choices.
+  evidence: []

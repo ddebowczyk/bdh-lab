@@ -1,0 +1,21 @@
+schema_version: 1
+id: activation-positive-relu-v1
+kind: activation
+status: active
+summary: Positive latent projection for the fast-weight candidate.
+hypothesis:
+  claim: A positive representation makes the state update easier to inspect.
+  expected_effect: Stored key-value features are non-negative before normalization.
+  falsifier: An unconstrained feature control gives better recall with equal stability.
+lineage:
+  basis:
+    - BDH public description of sparse positive activations.
+interfaces:
+  inputs: [latent_vector]
+  outputs: [positive_latent_vector]
+  state: none
+parameters:
+  activation: relu
+decision:
+  rationale: Keep the first hypothesis adjacent to, but distinct from, the BDH claim.
+  evidence: []

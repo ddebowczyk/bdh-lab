@@ -1,0 +1,34 @@
+schema_version: 1
+id: synthetic-associative-recall-smoke-v1
+status: active
+summary: Small CPU smoke run for the BDH-inspired fast-weight candidate.
+hypothesis:
+  claim: The local fast-weight route can complete and write valid evidence.
+  expected_effect: A completed result has bounded recall accuracy and a loss value.
+  falsifier: The runner fails or writes a result that does not validate.
+lineage:
+  basis:
+    - Initial execution-path smoke test.
+assembly_id: bdh-fastweight-recall-v1
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_v1
+  config:
+    symbols: 8
+    associations_per_sequence: 3
+    batch_size: 8
+training:
+  steps: 4
+  learning_rate: 0.003
+  device: cpu
+data:
+  training:
+    kind: generated_synthetic_associative_recall_v1
+    no_overlap_with:
+      - synthetic-associative-recall-s8-a3-validation-v1
+      - synthetic-associative-recall-s8-a3-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-s8-a3-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-s8-a3-golden-evaluation-v1
+seeds: [7]
+metrics:
+  primary: golden_evaluation_query_accuracy

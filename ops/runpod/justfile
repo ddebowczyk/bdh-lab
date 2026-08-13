@@ -1,0 +1,19 @@
+# Inspect local provider readiness without a network request.
+doctor:
+    just --justfile ../../justfile --working-directory ../.. provider runpod doctor
+
+# Render a Pod creation command without executing it.
+plan experiment:
+    just --justfile ../../justfile --working-directory ../.. provider runpod plan "{{experiment}}"
+
+# Create a Pod only through this explicit remote-write route.
+apply experiment:
+    just --justfile ../../justfile --working-directory ../.. provider runpod apply "{{experiment}}"
+
+# Create, run, retrieve, cost, and terminate an isolated Pod.
+launch experiment:
+    just --justfile ../../justfile --working-directory ../.. provider runpod launch "{{experiment}}"
+
+# Append a schema-validated billing snapshot without creating a Pod.
+cost experiment pod_id started_at ended_at:
+    just --justfile ../../justfile --working-directory ../.. provider runpod cost "{{experiment}}" "{{pod_id}}" "{{started_at}}" "{{ended_at}}"

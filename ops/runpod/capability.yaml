@@ -1,0 +1,25 @@
+schema_version: 1
+id: runpod
+summary: Plan, run, cost, and clean up bounded Runpod Pod experiments.
+owns:
+  - ops/runpod/
+  - justfiles/provider.just
+  - profiles/runpod-pod-v1.yaml
+  - docs/runpod.md
+reads:
+  - experiments/*.yaml
+  - assemblies/*.yaml
+  - components/*.yaml
+generates:
+  - var/runs/
+commands:
+  - route: just ops runpod doctor
+    effect: read-only
+  - route: just ops runpod plan <experiment>
+    effect: read-only
+  - route: just ops runpod apply <experiment>
+    effect: remote-write
+  - route: just ops runpod launch <experiment>
+    effect: remote-write
+  - route: just ops runpod cost <experiment> <pod-id> <started-at> <ended-at>
+    effect: local-write

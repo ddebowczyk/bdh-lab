@@ -1,0 +1,40 @@
+schema_version: 1
+id: synthetic-associative-recall-fastweight-runpod-smoke-v1
+status: active
+summary: One-seed CUDA execution-path smoke test for the Runpod integration.
+hypothesis:
+  claim: The Runpod execution path can run the small fast-weight task and retrieve valid evidence.
+  expected_effect: One completed CUDA result and one Pod-scoped cost record are written locally.
+  falsifier: Pod provisioning, CUDA execution, result retrieval, cleanup, or cost-record collection fails.
+lineage:
+  basis:
+    - Remote repetition of the validated local execution-path smoke test.
+    - First paid Runpod lifecycle check before GPU comparison experiments.
+  parent_experiment_ids:
+    - synthetic-associative-recall-smoke-v1
+assembly_id: bdh-fastweight-recall-v1
+profile_id: runpod-pod-v1
+task:
+  kind: synthetic_associative_recall_v1
+  config:
+    symbols: 8
+    associations_per_sequence: 3
+    batch_size: 8
+training:
+  steps: 4
+  learning_rate: 0.003
+  device: cuda
+data:
+  training:
+    kind: generated_synthetic_associative_recall_v1
+    no_overlap_with:
+      - synthetic-associative-recall-s8-a3-validation-v1
+      - synthetic-associative-recall-s8-a3-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-s8-a3-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-s8-a3-golden-evaluation-v1
+seeds: [7]
+metrics:
+  primary: golden_evaluation_query_accuracy
+budget:
+  maximum_runtime_minutes: 30
+  maximum_cost_usd: 0.20

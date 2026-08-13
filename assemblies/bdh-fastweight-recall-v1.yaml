@@ -1,0 +1,19 @@
+schema_version: 1
+id: bdh-fastweight-recall-v1
+status: active
+summary: BDH-inspired fixed-state associative-recall candidate.
+task_family: synthetic-associative-recall
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: activation
+    component_id: activation-positive-relu-v1
+  - role: memory
+    component_id: memory-hebbian-fastweight-v1
+implementation:
+  kind: fast_weight_recall_v1
+  config:
+    hidden_size: 64
+decision:
+  rationale: Test persistent Hebbian state independently from unverified BDH performance claims.
+  evidence: []

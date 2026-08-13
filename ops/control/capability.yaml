@@ -1,0 +1,15 @@
+schema_version: 1
+id: control
+summary: Validate the operations catalogue, its schemas, and its ownership map.
+owns:
+  - ops/ops.yaml
+  - ops/schema/
+  - ops/bin/
+  - ops/control/
+  - ops/README.md
+reads:
+  - ops/*/capability.yaml
+generates: []
+commands:
+  - route: just ops validate
+    effect: read-only

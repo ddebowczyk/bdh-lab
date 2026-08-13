@@ -1,0 +1,63 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab assembly v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - status
+  - summary
+  - task_family
+  - components
+  - implementation
+  - decision
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  status:
+    enum: [proposed, active, rejected, superseded, retired]
+  summary:
+    type: string
+    minLength: 1
+  task_family:
+    type: string
+    minLength: 1
+  components:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [role, component_id]
+      properties:
+        role:
+          type: string
+          minLength: 1
+        component_id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  implementation:
+    type: object
+    additionalProperties: false
+    required: [kind, config]
+    properties:
+      kind:
+        enum: [transformer_recall_v1, fast_weight_recall_v1]
+      config:
+        type: object
+        additionalProperties: true
+  decision:
+    type: object
+    additionalProperties: false
+    required: [rationale, evidence]
+    properties:
+      rationale:
+        type: string
+        minLength: 1
+      evidence:
+        type: array
+        items:
+          type: string

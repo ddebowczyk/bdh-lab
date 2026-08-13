@@ -1,0 +1,14 @@
+schema_version: 1
+id: synthetic-associative-recall-s16-a6-golden-evaluation-v1
+status: active
+summary: Checksum-pinned golden evaluation split for the 16-symbol associative-recall comparison task.
+kind: synthetic_associative_recall_v1
+role: golden_evaluation
+config:
+  symbols: 16
+  associations_per_sequence: 6
+generation:
+  algorithm: torch-synthetic-associative-recall-v1
+  seed: bdh-lab-s16-a6-golden-evaluation-v1
+  count: 256
+  checksum_sha256: afc18ca3db2531ed597ffb439ef473dc8cc5055e72b74e1a37eab74259e1825f

@@ -1,0 +1,14 @@
+schema_version: 1
+id: synthetic-associative-recall-s8-a3-golden-evaluation-v1
+status: active
+summary: Checksum-pinned golden evaluation split for the 8-symbol associative-recall smoke task.
+kind: synthetic_associative_recall_v1
+role: golden_evaluation
+config:
+  symbols: 8
+  associations_per_sequence: 3
+generation:
+  algorithm: torch-synthetic-associative-recall-v1
+  seed: bdh-lab-s8-a3-golden-evaluation-v1
+  count: 16
+  checksum_sha256: b20a6895d8eb3e89ec477911d20f5abd471a6bd191ea6b376e15a7dcca7bd756

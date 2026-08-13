@@ -1,0 +1,40 @@
+schema_version: 1
+id: synthetic-associative-recall-fastweight-runpod-v1
+status: proposed
+summary: Proposed Runpod execution plan for the persistent-memory candidate.
+hypothesis:
+  claim: The fast-weight candidate has useful associative recall on a CUDA Pod.
+  expected_effect: It meets the threshold across the declared seeds within the budget.
+  falsifier: Its aggregate result misses the threshold, exceeds the budget, or fails.
+lineage:
+  basis:
+    - GPU repetition of the local persistent-memory mechanism experiment.
+  parent_experiment_ids:
+    - synthetic-associative-recall-fastweight-v1
+assembly_id: bdh-fastweight-recall-v1
+profile_id: runpod-pod-v1
+task:
+  kind: synthetic_associative_recall_v1
+  config:
+    symbols: 16
+    associations_per_sequence: 6
+    batch_size: 32
+training:
+  steps: 100
+  learning_rate: 0.003
+  device: cuda
+data:
+  training:
+    kind: generated_synthetic_associative_recall_v1
+    no_overlap_with:
+      - synthetic-associative-recall-s16-a6-validation-v1
+      - synthetic-associative-recall-s16-a6-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-s16-a6-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-s16-a6-golden-evaluation-v1
+seeds: [7, 17, 37]
+metrics:
+  primary: golden_evaluation_query_accuracy
+  threshold: 0.70
+budget:
+  maximum_runtime_minutes: 45
+  maximum_cost_usd: 2.00

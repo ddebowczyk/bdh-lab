@@ -1,0 +1,38 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab operation capability v1
+type: object
+additionalProperties: false
+required: [schema_version, id, summary, owns, reads, generates, commands]
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*$'
+  summary:
+    type: string
+    minLength: 1
+  owns:
+    type: array
+    items:
+      type: string
+  reads:
+    type: array
+    items:
+      type: string
+  generates:
+    type: array
+    items:
+      type: string
+  commands:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required: [route, effect]
+      properties:
+        route:
+          type: string
+        effect:
+          enum: [read-only, local-write, remote-write]

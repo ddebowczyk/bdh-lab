@@ -1,0 +1,19 @@
+schema_version: 1
+id: attention-causal-softmax-v1
+kind: causal-attention
+status: active
+summary: Standard causal softmax attention for the Transformer control.
+hypothesis:
+  claim: A matched causal Transformer is the minimum control for the recall task.
+  expected_effect: The control shows the cost and accuracy of full-context attention.
+  falsifier: The implementation fails causal masking or cannot learn the configured task.
+lineage:
+  basis:
+    - Transformer causal-attention baseline.
+interfaces:
+  inputs: [token_vectors, causal_mask]
+  outputs: [contextual_vectors]
+  state: context-activations-only
+decision:
+  rationale: Compare a persistent-state hypothesis against a known attention mechanism.
+  evidence: []

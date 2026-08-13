@@ -1,0 +1,3 @@
+# Run the complete local evidence gate.
+all:
+    just --justfile ../../justfile --working-directory ../.. check all

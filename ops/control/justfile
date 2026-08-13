@@ -1,0 +1,3 @@
+# Validate the operation catalogue, declared ownership, and active selections.
+validate:
+    cd ../.. && uv run python ops/bin/validate.py

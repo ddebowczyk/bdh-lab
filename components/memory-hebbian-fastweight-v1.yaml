@@ -1,0 +1,23 @@
+schema_version: 1
+id: memory-hebbian-fastweight-v1
+kind: fast-weight-memory
+status: active
+summary: Fixed-size associative matrix updated from key-value token pairs.
+hypothesis:
+  claim: Hebbian outer-product writes can retain key-value associations in fixed state.
+  expected_effect: Query accuracy stays useful as the number of prior pairs grows without KV-cache growth.
+  falsifier: Matched evaluation shows no useful recall or worse cost-adjusted recall than controls.
+lineage:
+  basis:
+    - BDH public paper description of Hebbian working memory.
+    - Fast-weight associative-memory literature.
+interfaces:
+  inputs: [key_vector, value_vector, query_vector, memory_state]
+  outputs: [retrieved_value_vector, memory_state]
+  state: writable-matrix-per-layer
+parameters:
+  update: state = state + outer(normalize(key), normalize(value))
+  read: normalize(query) @ state
+decision:
+  rationale: Test the publicly described mechanism without claiming Pathway's hidden state kernel.
+  evidence: []

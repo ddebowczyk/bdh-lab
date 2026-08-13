@@ -1,0 +1,14 @@
+schema_version: 1
+id: synthetic-associative-recall-s8-a3-validation-v1
+status: active
+summary: Checksum-pinned validation split for the 8-symbol associative-recall smoke task.
+kind: synthetic_associative_recall_v1
+role: validation
+config:
+  symbols: 8
+  associations_per_sequence: 3
+generation:
+  algorithm: torch-synthetic-associative-recall-v1
+  seed: bdh-lab-s8-a3-validation-v1
+  count: 16
+  checksum_sha256: 81471e6fe1aec20c9ced0560d8a50dbb815378b4104b2da4be3a23769f76e061

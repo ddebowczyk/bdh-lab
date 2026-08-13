@@ -1,0 +1,35 @@
+schema_version: 1
+id: synthetic-associative-recall-transformer-v1
+status: active
+summary: Causal Transformer control for a larger synthetic associative-recall run.
+hypothesis:
+  claim: The causal Transformer provides a full-context control on this task.
+  expected_effect: It establishes a reproducible accuracy and loss reference.
+  falsifier: It cannot complete the declared task or record a valid control result.
+lineage:
+  basis:
+    - Initial full-context control experiment.
+assembly_id: transformer-recall-v1
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_v1
+  config:
+    symbols: 16
+    associations_per_sequence: 6
+    batch_size: 32
+training:
+  steps: 100
+  learning_rate: 0.003
+  device: auto
+data:
+  training:
+    kind: generated_synthetic_associative_recall_v1
+    no_overlap_with:
+      - synthetic-associative-recall-s16-a6-validation-v1
+      - synthetic-associative-recall-s16-a6-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-s16-a6-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-s16-a6-golden-evaluation-v1
+seeds: [7]
+metrics:
+  primary: golden_evaluation_query_accuracy
+  threshold: 0.70

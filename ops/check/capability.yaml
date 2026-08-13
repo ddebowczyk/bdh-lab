@@ -1,0 +1,22 @@
+schema_version: 1
+id: check
+summary: Validate metadata contracts and run the local source checks.
+owns:
+  - .yamllint
+  - ops/check/
+  - justfiles/check.just
+  - justfiles/metadata.just
+reads:
+  - components/*.yaml
+  - assemblies/*.yaml
+  - experiments/*.yaml
+  - profiles/*.yaml
+  - schemas/v1/*.yaml
+generates:
+  - .pytest_cache/
+  - .ruff_cache/
+commands:
+  - route: just ops check all
+    effect: read-only
+  - route: just metadata validate
+    effect: read-only

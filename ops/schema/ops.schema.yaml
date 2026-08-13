@@ -1,0 +1,19 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab operations catalogue v1
+type: object
+additionalProperties: false
+required: [schema_version, active]
+properties:
+  schema_version:
+    const: 1
+  active:
+    type: object
+    additionalProperties: false
+    required: [operation-control, metadata-integrity, provider-planning]
+    properties:
+      operation-control:
+        const: control
+      metadata-integrity:
+        const: check
+      provider-planning:
+        const: runpod

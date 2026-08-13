@@ -1,0 +1,100 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab run result v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - status
+  - experiment_id
+  - assembly_id
+  - profile_id
+  - started_at
+  - finished_at
+  - provenance
+  - metrics
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^run-[a-z0-9-]+$'
+  status:
+    enum: [completed, failed]
+  experiment_id:
+    type: string
+  assembly_id:
+    type: string
+  profile_id:
+    type: string
+  started_at:
+    type: string
+    format: date-time
+  finished_at:
+    type: string
+    format: date-time
+  provenance:
+    type: object
+    additionalProperties: false
+    required: [source_revision, torch_version, device, seed]
+    properties:
+      source_revision:
+        type: string
+      source_snapshot_sha256:
+        type: string
+        pattern: '^[a-f0-9]{64}$'
+      torch_version:
+        type: string
+      device:
+        type: string
+      seed:
+        type: integer
+      provider:
+        type: string
+      pod_id:
+        type: string
+      template_id:
+        type: string
+      validation_dataset_id:
+        type: string
+      validation_dataset_checksum_sha256:
+        type: string
+        pattern: '^[a-f0-9]{64}$'
+      golden_evaluation_dataset_id:
+        type: string
+      golden_evaluation_dataset_checksum_sha256:
+        type: string
+        pattern: '^[a-f0-9]{64}$'
+  metrics:
+    type: object
+    additionalProperties:
+      type: number
+  failure:
+    type: object
+    additionalProperties: false
+    required: [type, message]
+    properties:
+      type:
+        type: string
+        minLength: 1
+      message:
+        type: string
+        minLength: 1
+  resolved:
+    type: object
+    additionalProperties: true
+allOf:
+  - if:
+      properties:
+        status:
+          const: completed
+    then:
+      properties:
+        metrics:
+          required: [final_train_loss]
+  - if:
+      properties:
+        status:
+          const: failed
+    then:
+      required: [failure]

@@ -1,0 +1,87 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab component v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - kind
+  - status
+  - summary
+  - hypothesis
+  - lineage
+  - interfaces
+  - decision
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  kind:
+    type: string
+    minLength: 1
+  status:
+    enum: [proposed, active, rejected, superseded, retired]
+  summary:
+    type: string
+    minLength: 1
+  hypothesis:
+    type: object
+    additionalProperties: false
+    required: [claim, expected_effect, falsifier]
+    properties:
+      claim:
+        type: string
+        minLength: 1
+      expected_effect:
+        type: string
+        minLength: 1
+      falsifier:
+        type: string
+        minLength: 1
+  lineage:
+    type: object
+    additionalProperties: false
+    required: [basis]
+    properties:
+      basis:
+        type: array
+        items:
+          type: string
+          minLength: 1
+      parent_component_ids:
+        type: array
+        uniqueItems: true
+        items:
+          type: string
+  interfaces:
+    type: object
+    additionalProperties: false
+    required: [inputs, outputs, state]
+    properties:
+      inputs:
+        type: array
+        items:
+          type: string
+      outputs:
+        type: array
+        items:
+          type: string
+      state:
+        type: string
+  parameters:
+    type: object
+    additionalProperties: true
+  decision:
+    type: object
+    additionalProperties: false
+    required: [rationale, evidence]
+    properties:
+      rationale:
+        type: string
+        minLength: 1
+      evidence:
+        type: array
+        items:
+          type: string

@@ -1,0 +1,104 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab provider cost record v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - status
+  - experiment_id
+  - provider
+  - pod_id
+  - collection
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^cost-[a-z0-9-]+$'
+  status:
+    enum: [reported, pending, unavailable]
+  experiment_id:
+    type: string
+  provider:
+    const: runpod
+  pod_id:
+    type: string
+    minLength: 1
+  run_ids:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+  collection:
+    type: object
+    additionalProperties: false
+    required: [started_at, ended_at, collected_at, bucket_size, raw_artifact]
+    properties:
+      started_at:
+        type: string
+        format: date-time
+      ended_at:
+        type: string
+        format: date-time
+      collected_at:
+        type: string
+        format: date-time
+      bucket_size:
+        const: hour
+      raw_artifact:
+        type: string
+        pattern: '^[a-z0-9-]+\.json$'
+  amount_usd:
+    type: number
+    minimum: 0
+  time_billed_ms:
+    type: integer
+    minimum: 0
+  entries:
+    type: array
+    items:
+      type: object
+      additionalProperties: false
+      required: [amount_usd, time, time_billed_ms]
+      properties:
+        amount_usd:
+          type: number
+          minimum: 0
+        disk_space_billed_gb:
+          type: integer
+          minimum: 0
+        gpu_type_id:
+          type: string
+        pod_id:
+          type: string
+        time:
+          type: string
+          format: date-time
+        time_billed_ms:
+          type: integer
+          minimum: 0
+  failure:
+    type: object
+    additionalProperties: false
+    required: [type, message]
+    properties:
+      type:
+        type: string
+        minLength: 1
+      message:
+        type: string
+        minLength: 1
+allOf:
+  - if:
+      properties:
+        status:
+          const: reported
+    then:
+      required: [amount_usd, time_billed_ms, entries]
+  - if:
+      properties:
+        status:
+          const: unavailable
+    then:
+      required: [failure]

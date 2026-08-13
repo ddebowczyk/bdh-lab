@@ -1,0 +1,30 @@
+schema_version: 1
+id: runpod-pod-v1
+provider: runpod
+summary: Credential-safe plan for a manually approved Runpod Pod.
+execution:
+  kind: pod
+  command: runpodctl
+  # Public Runpod template, checked with `runpodctl template search pytorch`.
+  # Set RUNPOD_TEMPLATE_ID only to override this default for one invocation.
+  template_id: runpod-torch-v280
+  template_id_environment: RUNPOD_TEMPLATE_ID
+  pod:
+    name_prefix: bdh-lab
+    gpu_type_ids:
+      - NVIDIA RTX A5000
+      - NVIDIA RTX A4000
+      - NVIDIA RTX A4500
+      - NVIDIA GeForce RTX 3090
+      - NVIDIA GeForce RTX 4090
+    volume_mount_path: /workspace
+    cloud_type: COMMUNITY
+    public_ip: true
+    container_disk_gb: 30
+    wait_timeout: 15m
+  remote:
+    checkout_path: /workspace/bdh-lab
+    python_command: python3
+    uv_version: 0.9.22
+artifacts:
+  local_root: var/runs

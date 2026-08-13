@@ -1,0 +1,35 @@
+schema_version: 1
+id: synthetic-associative-recall-fastweight-v1
+status: active
+summary: Persistent-memory candidate for a larger synthetic associative-recall run.
+hypothesis:
+  claim: A writable fast-weight state can retrieve associations after input reading.
+  expected_effect: The candidate reaches the declared recall threshold on the synthetic task.
+  falsifier: It completes the task below the threshold or fails to write valid evidence.
+lineage:
+  basis:
+    - Initial persistent-memory mechanism experiment.
+assembly_id: bdh-fastweight-recall-v1
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_v1
+  config:
+    symbols: 16
+    associations_per_sequence: 6
+    batch_size: 32
+training:
+  steps: 100
+  learning_rate: 0.003
+  device: auto
+data:
+  training:
+    kind: generated_synthetic_associative_recall_v1
+    no_overlap_with:
+      - synthetic-associative-recall-s16-a6-validation-v1
+      - synthetic-associative-recall-s16-a6-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-s16-a6-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-s16-a6-golden-evaluation-v1
+seeds: [7]
+metrics:
+  primary: golden_evaluation_query_accuracy
+  threshold: 0.70

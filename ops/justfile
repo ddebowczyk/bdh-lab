@@ -1,0 +1,15 @@
+set shell := ["bash", "-euo", "pipefail", "-c"]
+set positional-arguments := true
+
+mod control 'control/justfile'
+mod check 'check/justfile'
+mod runpod 'runpod/justfile'
+
+# Show the repository-operation command surface.
+default:
+    @just --list --list-submodules
+
+# Validate operation manifests and experiment metadata.
+validate:
+    just control validate
+    just --justfile ../justfile --working-directory .. metadata validate
