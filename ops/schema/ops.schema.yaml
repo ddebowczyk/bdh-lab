@@ -9,7 +9,7 @@ properties:
   active:
     type: object
     additionalProperties: false
-    required: [operation-control, metadata-integrity, provider-planning]
+    required: [operation-control, metadata-integrity, provider-planning, research-control]
     properties:
       operation-control:
         const: control
@@ -17,3 +17,5 @@ properties:
         const: check
       provider-planning:
         const: runpod
+      research-control:
+        const: research

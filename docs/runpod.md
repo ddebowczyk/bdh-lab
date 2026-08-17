@@ -49,7 +49,7 @@ tests the complete provider path: provisioning, SSH, source transfer, remote
 `uv` environment setup, CUDA execution, result retrieval, default Pod
 deletion, and cost-record collection. It does not test model quality.
 
-The record is `proposed`, has a 30-minute hard lifetime, and a USD 0.20
+The record is `active`, has a 30-minute hard lifetime, and a USD 0.20
 projected-cost cap. Current 4090 community pricing was USD 0.34/hour when this
 record was added, which projects to USD 0.17 for 30 minutes. The launcher
 will delete a newly created Pod if its returned rate exceeds the declared cap.
@@ -57,7 +57,6 @@ will delete a newly created Pod if its returned rate exceeds the declared cap.
 ```sh
 just provider runpod plan \
   experiments/synthetic-associative-recall-fastweight-runpod-smoke-v1.yaml
-# Review and change only this record's status from proposed to active.
 just provider runpod launch \
   experiments/synthetic-associative-recall-fastweight-runpod-smoke-v1.yaml
 just experiment report-experiment synthetic-associative-recall-fastweight-runpod-smoke-v1
@@ -88,6 +87,21 @@ just provider runpod plan experiments/synthetic-associative-recall-fastweight-ru
 Promoting a candidate to `active` is a reviewed metadata decision. The
 launcher rejects a `proposed` experiment before it reads the template ID or
 creates a Pod.
+
+## BDH-GPU streaming measurement
+
+`synthetic-associative-recall-bdh-gpu-streaming-runpod-v1` retrieved three
+failure records because CUDA was not visible in the allocated environment. It
+was deleted and its billing record is pending. Preserve that evidence; do not
+run the same version again.
+
+`synthetic-associative-recall-bdh-gpu-streaming-runpod-v2` uses the current
+CUDA 13-compatible GPU list and verifies GPU visibility before and after
+environment synchronization. It runs the three local seeds on one capped Pod
+to measure CUDA execution, throughput, latency, fixed state size, and provider
+billing. It has a 30-minute hard lifetime and a USD 0.20 projected-cost cap.
+Its local result is documented in `research/evidence/bdh-gpu-streaming-local-v1.md`;
+this GPU run is not a new quality comparison claim.
 
 ## Launch and evidence retrieval
 

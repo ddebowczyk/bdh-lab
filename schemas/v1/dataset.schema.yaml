@@ -23,7 +23,7 @@ properties:
     type: string
     minLength: 1
   kind:
-    const: synthetic_associative_recall_v1
+    enum: [synthetic_associative_recall_v1, synthetic_associative_recall_streaming_v1]
   role:
     enum: [validation, golden_evaluation]
   config:
@@ -43,7 +43,9 @@ properties:
     required: [algorithm, seed, count, checksum_sha256]
     properties:
       algorithm:
-        const: torch-synthetic-associative-recall-v1
+        enum:
+          - torch-synthetic-associative-recall-v1
+          - torch-synthetic-associative-recall-streaming-v1
       seed:
         type: string
         minLength: 1

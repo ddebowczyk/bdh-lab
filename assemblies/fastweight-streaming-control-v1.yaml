@@ -1,0 +1,23 @@
+schema_version: 1
+id: fastweight-streaming-control-v1
+status: active
+summary: Small generic fast-weight control for the retained-state task family.
+task_family: synthetic-associative-recall-streaming
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: activation
+    component_id: activation-positive-relu-v1
+  - role: memory
+    component_id: memory-hebbian-fastweight-v1
+implementation:
+  kind: fast_weight_recall_v1
+  config:
+    hidden_size: 16
+decision:
+  rationale: >-
+    Separate the BDH-GPU tensor reference from the existing explicit
+    key-value Hebbian memory control on the same fixed episodes.
+  evidence:
+    - research/sources/bdh-public-boundary-v1.md
+research_objective_id: bdh-streaming-state-mechanism-v1

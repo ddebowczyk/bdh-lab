@@ -126,8 +126,20 @@ def schema_errors(root: Path | None = None) -> list[str]:
     root = root or ROOT
     errors: list[str] = []
     for pattern, schema_name in DOCUMENT_KINDS.values():
-        schema = root / "schemas" / "v1" / schema_name
         for document in sorted(root.glob(pattern)):
+            try:
+                data = load_yaml(document)
+            except MetadataError as error:
+                errors.append(str(error))
+                continue
+            version = data.get("schema_version")
+            if not isinstance(version, int) or version < 1:
+                errors.append(f"{document}: schema_version must be a positive integer")
+                continue
+            schema = root / "schemas" / f"v{version}" / schema_name
+            if not schema.is_file():
+                errors.append(f"{document}: no {schema_name} exists for schema_version {version}")
+                continue
             errors.extend(_validate_with_ys(root, document, schema))
     return errors
 
@@ -165,32 +177,88 @@ def reference_errors(catalogue: Catalogue) -> list[str]:
         if isinstance(data_splits, dict):
             validation_id = data_splits.get("validation_dataset_id")
             golden_id = data_splits.get("golden_evaluation_dataset_id")
-            expected_ids = {validation_id, golden_id}
+            split_pairs: list[tuple[str, object, object]] = [
+                ("base", validation_id, golden_id)
+            ]
+            evaluation_curve = data_splits.get("evaluation_curve", [])
+            if isinstance(evaluation_curve, list):
+                for condition in evaluation_curve:
+                    if isinstance(condition, dict):
+                        split_pairs.append(
+                            (
+                                str(condition.get("id", "unnamed")),
+                                condition.get("validation_dataset_id"),
+                                condition.get("golden_evaluation_dataset_id"),
+                            )
+                        )
+            expected_ids = {
+                dataset_id
+                for _name, validation, golden in split_pairs
+                for dataset_id in (validation, golden)
+            }
             no_overlap_with = data_splits.get("training", {}).get("no_overlap_with", [])
             if set(no_overlap_with) != expected_ids:
                 errors.append(
-                    f"{experiment.path}: training no_overlap_with must name both held-out splits"
+                    f"{experiment.path}: training no_overlap_with must name every held-out split"
                 )
             task_config = data.get("task", {}).get("config", {})
-            for dataset_id, expected_role in (
-                (validation_id, "validation"),
-                (golden_id, "golden_evaluation"),
-            ):
-                dataset = catalogue.datasets.get(dataset_id)
-                if dataset is None:
-                    errors.append(f"{experiment.path}: unknown dataset {dataset_id}")
-                elif dataset.data.get("status") != "active":
-                    errors.append(f"{experiment.path}: held-out dataset {dataset_id} is not active")
-                elif dataset.data.get("role") != expected_role:
+            seen_conditions: set[str] = set()
+            for condition_name, condition_validation_id, condition_golden_id in split_pairs:
+                if condition_name in seen_conditions:
                     errors.append(
-                        f"{experiment.path}: dataset {dataset_id} must have role {expected_role}"
+                        f"{experiment.path}: duplicate evaluation condition {condition_name}"
                     )
-                elif dataset.data.get("config") != {
-                    "symbols": task_config.get("symbols"),
-                    "associations_per_sequence": task_config.get("associations_per_sequence"),
-                }:
+                seen_conditions.add(condition_name)
+                condition_datasets: list[Document] = []
+                for dataset_id, expected_role in (
+                    (condition_validation_id, "validation"),
+                    (condition_golden_id, "golden_evaluation"),
+                ):
+                    dataset = catalogue.datasets.get(dataset_id)
+                    if dataset is None:
+                        errors.append(f"{experiment.path}: unknown dataset {dataset_id}")
+                    elif dataset.data.get("status") != "active":
+                        errors.append(
+                            f"{experiment.path}: held-out dataset {dataset_id} is not active"
+                        )
+                    elif dataset.data.get("role") != expected_role:
+                        errors.append(
+                            f"{experiment.path}: dataset {dataset_id} must have role "
+                            f"{expected_role}"
+                        )
+                    else:
+                        condition_datasets.append(dataset)
+                if len(condition_datasets) != 2:
+                    continue
+                validation_config = condition_datasets[0].data.get("config")
+                golden_config = condition_datasets[1].data.get("config")
+                if validation_config != golden_config:
                     errors.append(
-                        f"{experiment.path}: dataset {dataset_id} does not match task configuration"
+                        f"{experiment.path}: {condition_name} validation and golden "
+                        "configurations differ"
+                    )
+                    continue
+                if (
+                    not isinstance(validation_config, dict)
+                    or validation_config.get("symbols") != task_config.get("symbols")
+                ):
+                    errors.append(
+                        f"{experiment.path}: {condition_name} datasets do not match task symbols"
+                    )
+                    continue
+                associations = validation_config.get("associations_per_sequence")
+                if not isinstance(associations, int) or associations < int(
+                    task_config.get("associations_per_sequence", 0)
+                ):
+                    errors.append(
+                        f"{experiment.path}: {condition_name} datasets use an invalid "
+                        "association count"
+                    )
+                if condition_name == "base" and associations != task_config.get(
+                    "associations_per_sequence"
+                ):
+                    errors.append(
+                        f"{experiment.path}: base datasets do not match task association count"
                     )
         lineage = data.get("lineage", {})
         if isinstance(lineage, dict):
@@ -256,6 +324,17 @@ def resolved_plan(experiment_path: Path, root: Path | None = None) -> dict[str, 
         for reference in assembly.data["components"]
     ]
     data_splits = data["data"]
+    evaluation_curve = []
+    for condition in data_splits.get("evaluation_curve", []):
+        evaluation_curve.append(
+            {
+                "id": condition["id"],
+                "validation": catalogue.datasets[condition["validation_dataset_id"]].data,
+                "golden_evaluation": catalogue.datasets[
+                    condition["golden_evaluation_dataset_id"]
+                ].data,
+            }
+        )
     return {
         "experiment": data,
         "assembly": assembly.data,
@@ -266,5 +345,6 @@ def resolved_plan(experiment_path: Path, root: Path | None = None) -> dict[str, 
             "golden_evaluation": catalogue.datasets[
                 data_splits["golden_evaluation_dataset_id"]
             ].data,
+            "evaluation_curve": evaluation_curve,
         },
     }

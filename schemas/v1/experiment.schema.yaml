@@ -69,7 +69,9 @@ properties:
     required: [kind, config]
     properties:
       kind:
-        const: synthetic_associative_recall_v1
+        enum:
+          - synthetic_associative_recall_v1
+          - synthetic_associative_recall_streaming_v1
       config:
         type: object
         additionalProperties: false
@@ -108,7 +110,9 @@ properties:
         required: [kind, no_overlap_with]
         properties:
           kind:
-            const: generated_synthetic_associative_recall_v1
+            enum:
+              - generated_synthetic_associative_recall_v1
+              - generated_synthetic_associative_recall_streaming_v1
           no_overlap_with:
             type: array
             minItems: 2
@@ -135,11 +139,18 @@ properties:
     required: [primary]
     properties:
       primary:
-        enum: [validation_query_accuracy, golden_evaluation_query_accuracy]
+        enum:
+          - validation_query_accuracy
+          - golden_evaluation_query_accuracy
+          - validation_retained_state_query_accuracy
+          - golden_evaluation_retained_state_query_accuracy
       threshold:
         type: number
         minimum: 0
         maximum: 1
+  research_objective_id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
   budget:
     type: object
     additionalProperties: false

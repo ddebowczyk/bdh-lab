@@ -1,0 +1,73 @@
+schema_version: 1
+id: bdh-streaming-state-mechanism-v1
+status: concluded
+question: >-
+  Does a paper-derived BDH-GPU recurrent state preserve useful information
+  across calls?
+decision: >-
+  The public no-RoPE rho reference passes the streaming-state mechanism test,
+  but it is not competitive with the generic fast-weight control on this toy
+  task; retain it as a mechanism baseline, not a quality baseline.
+scope:
+  includes:
+    - A paper-derived BDH-GPU streaming reference.
+    - State retained across a defined inference boundary.
+    - Matched local controls for memory mechanism and full-context recall.
+  excludes:
+    - Claims to reproduce private BDH-CQ details.
+    - Claims about reasoning, continual learning, or brain equivalence.
+    - Claims that an execution smoke result measures model quality.
+gates:
+  - id: source-boundary
+    status: passed
+    exit_criteria: Public equations, public code, and missing details are separated.
+    evidence:
+      - kind: source
+        path: research/sources/bdh-public-boundary-v1.md
+  - id: streaming-reference
+    status: passed
+    exit_criteria: >-
+      Step and batched execution agree for every output and state update, and
+      later input cannot change an earlier state.
+    evidence:
+      - kind: test
+        path: tests/test_models.py
+  - id: retained-state-mechanism
+    status: passed
+    exit_criteria: Retained and reset state are compared on fixed held-out episodes.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-gpu-streaming-local-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-bdh-gpu-streaming-v1
+  - id: matched-comparison
+    status: passed
+    exit_criteria: >-
+      Three seeds compare BDH-GPU state, a fast-weight control, and a causal
+      Transformer with fixed splits and matched training budgets.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-gpu-streaming-local-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-bdh-gpu-streaming-v1
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-fastweight-streaming-v1
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-transformer-streaming-v1
+  - id: gpu-cost-quality
+    status: passed
+    exit_criteria: >-
+      A GPU run reports accuracy, state size, throughput, latency, and a
+      provider cost state.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-gpu-streaming-runpod-v2.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-bdh-gpu-streaming-runpod-v2
+next_action:
+  kind: decision
+  target: research/evidence/bdh-gpu-streaming-runpod-v2.md
+  completion: >-
+    Use this conclusion as the baseline for a new, separately scoped
+    long-delay or state-scaling objective; do not tune this reference on its
+    golden metric.

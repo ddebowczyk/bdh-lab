@@ -1,0 +1,51 @@
+schema_version: 1
+id: bdh-public-long-stream-retention-v1
+status: concluded
+question: >-
+  Does a trained public-BDH-conformant recurrent state retain useful
+  information at increasing fixed delays, with state size independent of stream length?
+decision: >-
+  Continue to BDH-specific attribution only if retained state exceeds reset
+  state by at least 0.10 on both longer golden splits for all three seeds.
+scope:
+  includes:
+    - A public-BDH-conformant RoPE state-space recall adapter.
+    - Fixed-query, checksum-pinned short and long held-out streams.
+    - Three-seed retained versus reset measurements and state-size reporting.
+  excludes:
+    - A claim that a toy recall result proves language reasoning or scaling.
+    - Tuning against golden results after this protocol is registered.
+    - Any comparison to proprietary BDH-CQ details.
+gates:
+  - id: protocol-and-interface
+    status: passed
+    exit_criteria: >-
+      The public adapter has fixed-query tests, the records validate, and the
+      plan resolves six non-overlapping checksum-pinned held-out splits.
+    evidence:
+      - kind: test
+        path: tests/test_models.py
+      - kind: test
+        path: tests/test_datasets.py
+  - id: three-seed-retention-curve
+    status: failed
+    exit_criteria: >-
+      All three seeds complete. On both a5 and a7 golden splits, retained
+      accuracy exceeds reset accuracy by at least 0.10 in every seed.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-long-stream-retention-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-public-bdh-long-stream-v2
+  - id: decision
+    status: passed
+    exit_criteria: >-
+      Evidence states whether to open attribution or run one bounded failure
+      diagnosis, including accuracy, state bytes, throughput, and latency.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-long-stream-retention-v1.md
+next_action:
+  kind: experiment
+  target: experiments/synthetic-associative-recall-public-bdh-capacity-diagnostic-v3.yaml
+  completion: Run exactly one fresh-split capacity diagnostic before closing or revising the direction.

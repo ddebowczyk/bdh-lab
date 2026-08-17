@@ -1,0 +1,12 @@
+schema_version: 2
+id: synthetic-associative-recall-long-stream-s8-a5-golden-evaluation-v2
+status: active
+summary: Fixed-query medium-stream final-evaluation split for public BDH retention.
+kind: synthetic_associative_recall_long_stream_v2
+role: golden_evaluation
+config: {symbols: 8, associations_per_sequence: 5, query_association_index: 0}
+generation:
+  algorithm: torch-synthetic-associative-recall-long-stream-v2
+  seed: bdh-public-long-stream-s8-a5-golden-evaluation-v2
+  count: 128
+  checksum_sha256: c5ce547db67c29bf23bb183d45d7acb47d6e1c5dd5e77bd40d1b59eb8e49edfe

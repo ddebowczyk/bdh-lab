@@ -1,0 +1,144 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab long-stream experiment v2
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - status
+  - summary
+  - hypothesis
+  - assembly_id
+  - profile_id
+  - task
+  - training
+  - data
+  - seeds
+  - metrics
+  - decision_rule
+properties:
+  schema_version:
+    const: 2
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  status:
+    enum: [proposed, active, rejected, superseded, retired]
+  summary:
+    type: string
+    minLength: 1
+  hypothesis:
+    type: object
+    additionalProperties: false
+    required: [claim, expected_effect, falsifier]
+    properties:
+      claim: {type: string, minLength: 1}
+      expected_effect: {type: string, minLength: 1}
+      falsifier: {type: string, minLength: 1}
+  lineage:
+    type: object
+    additionalProperties: false
+    required: [basis]
+    properties:
+      basis:
+        type: array
+        minItems: 1
+        items: {type: string, minLength: 1}
+      parent_experiment_ids:
+        type: array
+        uniqueItems: true
+        items: {type: string, pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'}
+  assembly_id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  profile_id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  task:
+    type: object
+    additionalProperties: false
+    required: [kind, config]
+    properties:
+      kind: {const: synthetic_associative_recall_long_stream_v2}
+      config:
+        type: object
+        additionalProperties: false
+        required: [symbols, associations_per_sequence, batch_size]
+        properties:
+          symbols: {type: integer, minimum: 2}
+          associations_per_sequence: {type: integer, minimum: 1}
+          batch_size: {type: integer, minimum: 1}
+  training:
+    type: object
+    additionalProperties: false
+    required: [steps, learning_rate, device]
+    properties:
+      steps: {type: integer, minimum: 1}
+      learning_rate: {type: number, exclusiveMinimum: 0}
+      device: {enum: [auto, cpu, cuda, mps]}
+  data:
+    type: object
+    additionalProperties: false
+    required: [training, validation_dataset_id, golden_evaluation_dataset_id, evaluation_curve]
+    properties:
+      training:
+        type: object
+        additionalProperties: false
+        required: [kind, no_overlap_with]
+        properties:
+          kind: {const: generated_synthetic_associative_recall_long_stream_v2}
+          no_overlap_with:
+            type: array
+            minItems: 6
+            uniqueItems: true
+            items: {type: string, pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'}
+      validation_dataset_id:
+        type: string
+        pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+      golden_evaluation_dataset_id:
+        type: string
+        pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+      evaluation_curve:
+        type: array
+        minItems: 2
+        items:
+          type: object
+          additionalProperties: false
+          required: [id, validation_dataset_id, golden_evaluation_dataset_id]
+          properties:
+            id: {type: string, pattern: '^[a-z][a-z0-9-]*$'}
+            validation_dataset_id:
+              type: string
+              pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+            golden_evaluation_dataset_id:
+              type: string
+              pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  seeds:
+    type: array
+    minItems: 3
+    uniqueItems: true
+    items: {type: integer, minimum: 0}
+  metrics:
+    type: object
+    additionalProperties: false
+    required: [primary]
+    properties:
+      primary:
+        enum:
+          - golden_evaluation_retained_state_query_accuracy
+          - curve-long-delay-a5-golden-evaluation-retained-state-query-accuracy
+  decision_rule:
+    type: object
+    additionalProperties: false
+    required: [minimum_retained_reset_margin, required_curve_ids, required_seed_count]
+    properties:
+      minimum_retained_reset_margin: {type: number, minimum: 0, maximum: 1}
+      required_curve_ids:
+        type: array
+        minItems: 2
+        uniqueItems: true
+        items: {type: string, pattern: '^[a-z][a-z0-9-]*$'}
+      required_seed_count: {type: integer, minimum: 3}
+  research_objective_id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'

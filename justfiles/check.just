@@ -2,6 +2,7 @@
 [group("Quality")]
 all:
     just --justfile ../justfile --working-directory .. metadata validate
+    just --justfile ../justfile --working-directory .. ops research validate
     just --justfile ../justfile --working-directory .. check yaml
     just --justfile ../justfile --working-directory .. check markdown
     just --justfile ../justfile --working-directory .. check lint
@@ -10,7 +11,7 @@ all:
 # Validate all versioned YAML data and schemas.
 [group("Quality")]
 yaml:
-    cd .. && yamllint components assemblies datasets experiments profiles schemas ops
+    cd .. && yamllint components assemblies datasets experiments profiles research schemas ops
 
 # Check all Markdown documentation.
 [group("Quality")]

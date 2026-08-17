@@ -11,6 +11,14 @@ import yaml
 
 from bdh_lab.costs import collect_pod_cost
 from bdh_lab.metadata import MetadataError, repository_root, resolved_plan, validate_catalogue
+from bdh_lab.research import (
+    ResearchError,
+    render_program_status,
+    render_status,
+    resolved_objective_plan,
+    resolved_program,
+    validate_research,
+)
 from bdh_lab.results import load_costs, load_results, summarize_results
 from bdh_lab.runpod import (
     apply_pod_plan,
@@ -45,6 +53,18 @@ def _parse_args(arguments: list[str] | None) -> argparse.Namespace:
     report = subcommands.add_parser("report", help="summarize schema-valid local run records")
     report.add_argument("--experiment-id")
     report.add_argument("--format", choices=("yaml", "json"), default="yaml")
+
+    research = subcommands.add_parser("research", help="validate and inspect research objectives")
+    research_subcommands = research.add_subparsers(dest="research_command", required=True)
+    research_subcommands.add_parser("validate", help="validate research-objective records")
+    research_subcommands.add_parser("status", help="show current research decision gates")
+    research_subcommands.add_parser("programs", help="show research-program node progress")
+    research_program = research_subcommands.add_parser(
+        "program", help="resolve one research-program dependency graph"
+    )
+    research_program.add_argument("program")
+    research_plan = research_subcommands.add_parser("plan", help="resolve one research objective")
+    research_plan.add_argument("objective")
 
     runpod = subcommands.add_parser("runpod", help="plan or apply a Runpod Pod")
     runpod_subcommands = runpod.add_subparsers(dest="runpod_command", required=True)
@@ -106,6 +126,30 @@ def main(arguments: list[str] | None = None) -> int:
             else:
                 print(yaml.safe_dump(report, sort_keys=False))
             return 0
+        if args.command == "research" and args.research_command == "validate":
+            errors = validate_research()
+            if errors:
+                print("Research validation failed:", file=sys.stderr)
+                print("\n".join(f"- {error}" for error in errors), file=sys.stderr)
+                return 1
+            print("Research objectives and links are valid.")
+            return 0
+        if args.command == "research" and args.research_command == "status":
+            print(render_status())
+            return 0
+        if args.command == "research" and args.research_command == "programs":
+            print(render_program_status())
+            return 0
+        if args.command == "research" and args.research_command == "program":
+            print(yaml.safe_dump(resolved_program(_experiment_path(args.program)), sort_keys=False))
+            return 0
+        if args.command == "research" and args.research_command == "plan":
+            print(
+                yaml.safe_dump(
+                    resolved_objective_plan(_experiment_path(args.objective)), sort_keys=False
+                )
+            )
+            return 0
         if args.command == "runpod" and args.runpod_command == "doctor":
             print("\n".join(doctor()))
             return 0
@@ -141,7 +185,7 @@ def main(arguments: list[str] | None = None) -> int:
             print(outcome.output_directory.relative_to(repository_root()))
         print(f"bdh-lab: {error}", file=sys.stderr)
         return 1
-    except (MetadataError, OSError, RuntimeError, ValueError) as error:
+    except (MetadataError, ResearchError, OSError, RuntimeError, ValueError) as error:
         print(f"bdh-lab: {error}", file=sys.stderr)
         return 1
     raise AssertionError(f"unhandled command: {args.command}")

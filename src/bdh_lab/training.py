@@ -5,8 +5,10 @@ from __future__ import annotations
 import json
 import os
 import subprocess
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from hashlib import sha256
 from pathlib import Path
 from typing import Any
 
@@ -15,9 +17,14 @@ import torch.nn.functional as functional
 import yaml
 from torch import nn
 
-from bdh_lab.datasets import HeldOutSplits, accuracy, resolve_held_out_splits
+from bdh_lab.datasets import HeldOutSplits, accuracy, resolve_held_out_splits, streaming_accuracy
 from bdh_lab.metadata import ROOT, validate_result_document
-from bdh_lab.models import build_model, make_associative_recall_batch
+from bdh_lab.models import (
+    BDHGPUStreamingRecall,
+    BDHPublicStreamingRecall,
+    build_model,
+    make_associative_recall_batch,
+)
 
 
 @dataclass(frozen=True)
@@ -58,7 +65,7 @@ def select_device(requested: str) -> torch.device:
 
 
 def source_revision() -> str:
-    """Return the current revision without requiring that the first commit exists."""
+    """Return the current revision and make uncommitted source visible."""
 
     completed = subprocess.run(
         ["git", "rev-parse", "--short", "HEAD"],
@@ -67,7 +74,41 @@ def source_revision() -> str:
         check=False,
         text=True,
     )
-    return completed.stdout.strip() if completed.returncode == 0 else "uncommitted"
+    revision = completed.stdout.strip() if completed.returncode == 0 else "uncommitted"
+    status = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=all"],
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    return f"{revision}-dirty" if status.returncode == 0 and status.stdout else revision
+
+
+_SNAPSHOT_EXCLUDED_PARTS = {".git", ".pytest_cache", ".ruff_cache", ".venv", "__pycache__", "var"}
+_SNAPSHOT_EXCLUDED_NAMES = {".DS_Store", ".env"}
+
+
+def source_snapshot_sha256() -> str:
+    """Hash the reproducible working source tree without generated run output."""
+
+    digest = sha256()
+    for source in sorted(ROOT.rglob("*")):
+        relative = source.relative_to(ROOT)
+        if (
+            any(part in _SNAPSHOT_EXCLUDED_PARTS for part in relative.parts)
+            or source.name in _SNAPSHOT_EXCLUDED_NAMES
+        ):
+            continue
+        encoded_path = relative.as_posix().encode("utf-8")
+        if source.is_symlink():
+            digest.update(b"L\\0" + encoded_path + b"\\0" + os.readlink(source).encode("utf-8"))
+        elif source.is_file():
+            digest.update(b"F\\0" + encoded_path + b"\\0")
+            with source.open("rb") as file:
+                for chunk in iter(lambda: file.read(1024 * 1024), b""):
+                    digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _time_now() -> str:
@@ -90,12 +131,14 @@ def _provenance(
 
     provenance: dict[str, Any] = {
         "source_revision": os.environ.get("BDH_LAB_SOURCE_REVISION", source_revision()),
+        "source_snapshot_sha256": os.environ.get(
+            "BDH_LAB_SOURCE_SNAPSHOT_SHA256", source_snapshot_sha256()
+        ),
         "torch_version": str(torch.__version__),
         "device": device,
         "seed": seed,
     }
     optional_environment = {
-        "source_snapshot_sha256": "BDH_LAB_SOURCE_SNAPSHOT_SHA256",
         "provider": "BDH_LAB_PROVIDER",
         "pod_id": "BDH_LAB_RUNPOD_POD_ID",
         "template_id": "BDH_LAB_RUNPOD_TEMPLATE_ID",
@@ -165,6 +208,8 @@ def _run_seed(
         model: nn.Module = build_model(assembly, symbols=symbols).to(device)
         optimizer = torch.optim.AdamW(model.parameters(), lr=float(training["learning_rate"]))
         final_loss = 0.0
+        training_tokens = 0
+        training_started = time.perf_counter()
 
         model.train()
         for _step in range(int(training["steps"])):
@@ -176,12 +221,14 @@ def _run_seed(
                 device=device,
                 excluded_example_ids=held_out_splits.excluded_training_example_ids,
             )
+            training_tokens += batch.tokens.numel()
             optimizer.zero_grad(set_to_none=True)
             logits = model(batch.tokens)
             loss = functional.cross_entropy(logits, batch.targets)
             final_loss = float(loss.detach().cpu())
             loss.backward()
             optimizer.step()
+        training_elapsed = time.perf_counter() - training_started
 
         model.eval()
         with torch.no_grad():
@@ -191,6 +238,74 @@ def _run_seed(
             golden_evaluation_accuracy = accuracy(
                 model, held_out_splits.golden_evaluation_examples, device
             )
+
+            streaming_metrics: dict[str, float] = {}
+            if isinstance(model, (BDHGPUStreamingRecall, BDHPublicStreamingRecall)):
+                streaming_metrics = {
+                    "validation_retained_state_query_accuracy": streaming_accuracy(
+                        model,
+                        held_out_splits.validation_examples,
+                        device,
+                        retain_state=True,
+                    ),
+                    "validation_reset_state_query_accuracy": streaming_accuracy(
+                        model,
+                        held_out_splits.validation_examples,
+                        device,
+                        retain_state=False,
+                    ),
+                    "golden_evaluation_retained_state_query_accuracy": streaming_accuracy(
+                        model,
+                        held_out_splits.golden_evaluation_examples,
+                        device,
+                        retain_state=True,
+                    ),
+                    "golden_evaluation_reset_state_query_accuracy": streaming_accuracy(
+                        model,
+                        held_out_splits.golden_evaluation_examples,
+                        device,
+                        retain_state=False,
+                    ),
+                    "streaming_state_bytes_per_example": float(model.state_nbytes()),
+                }
+                for condition in held_out_splits.evaluation_curve:
+                    prefix = f"curve_{condition.id.replace('-', '_')}"
+                    streaming_metrics.update(
+                        {
+                            f"{prefix}_validation_retained_state_query_accuracy": (
+                                streaming_accuracy(
+                                model,
+                                condition.validation_examples,
+                                device,
+                                retain_state=True,
+                                )
+                            ),
+                            f"{prefix}_validation_reset_state_query_accuracy": (
+                                streaming_accuracy(
+                                model,
+                                condition.validation_examples,
+                                device,
+                                retain_state=False,
+                                )
+                            ),
+                            f"{prefix}_golden_evaluation_retained_state_query_accuracy": (
+                                streaming_accuracy(
+                                model,
+                                condition.golden_evaluation_examples,
+                                device,
+                                retain_state=True,
+                                )
+                            ),
+                            f"{prefix}_golden_evaluation_reset_state_query_accuracy": (
+                                streaming_accuracy(
+                                model,
+                                condition.golden_evaluation_examples,
+                                device,
+                                retain_state=False,
+                                )
+                            ),
+                        }
+                    )
 
         result = {
             **result_base,
@@ -203,6 +318,11 @@ def _run_seed(
                 "validation_query_accuracy": validation_accuracy,
                 "golden_evaluation_query_accuracy": golden_evaluation_accuracy,
                 "final_train_loss": final_loss,
+                "training_tokens_per_second": training_tokens / training_elapsed,
+                "mean_train_step_latency_ms": (
+                    (training_elapsed / int(training["steps"])) * 1_000
+                ),
+                **streaming_metrics,
             },
         }
         _write_result(output_directory / "result.yaml", result)

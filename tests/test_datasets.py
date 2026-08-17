@@ -57,3 +57,37 @@ def test_dataset_checksum_mismatch_is_rejected() -> None:
 
     with pytest.raises(DatasetIntegrityError, match="checksum mismatch"):
         materialize_synthetic_recall_dataset(invalid)
+
+
+def test_long_stream_curve_splits_are_checksum_pinned_and_disjoint() -> None:
+    plan = resolved_plan(
+        repository_root()
+        / "experiments"
+        / "synthetic-associative-recall-public-bdh-long-stream-v2.yaml"
+    )
+    splits = resolve_held_out_splits(plan)
+
+    assert len(splits.validation_examples) == 64
+    assert len(splits.golden_evaluation_examples) == 128
+    assert [split.id for split in splits.evaluation_curve] == ["long-delay-a5", "long-delay-a7"]
+    assert [
+        len(split.golden_evaluation_examples) for split in splits.evaluation_curve
+    ] == [128, 128]
+    assert len(splits.excluded_training_example_ids) == 576
+
+
+def test_capacity_diagnostic_splits_are_fresh_relative_to_the_failed_curve() -> None:
+    completed_plan = resolved_plan(
+        repository_root()
+        / "experiments"
+        / "synthetic-associative-recall-public-bdh-long-stream-v2.yaml"
+    )
+    diagnostic_plan = resolved_plan(
+        repository_root()
+        / "experiments"
+        / "synthetic-associative-recall-public-bdh-capacity-diagnostic-v3.yaml"
+    )
+
+    assert resolve_held_out_splits(completed_plan).excluded_training_example_ids.isdisjoint(
+        resolve_held_out_splits(diagnostic_plan).excluded_training_example_ids
+    )

@@ -1,0 +1,47 @@
+schema_version: 1
+id: synthetic-associative-recall-bdh-gpu-streaming-runpod-v1
+status: active
+summary: Bounded CUDA measurement of the paper-derived BDH-GPU streaming reference.
+hypothesis:
+  claim: >-
+    The locally verified rho reference runs on a single bounded Runpod Pod and
+    writes CUDA, throughput, latency, fixed-state, and provider-cost evidence.
+  expected_effect: >-
+    Three completed CUDA records and one Pod-scoped cost record are retrieved
+    within the declared runtime and projected-cost limits.
+  falsifier: >-
+    Provisioning, CUDA execution, evidence retrieval, cleanup, or cost
+    collection fails; or the returned hourly rate exceeds the cap.
+lineage:
+  basis:
+    - research/evidence/bdh-gpu-streaming-local-v1.md
+    - GPU measurement after local state and matched-comparison gates passed.
+  parent_experiment_ids:
+    - synthetic-associative-recall-bdh-gpu-streaming-v1
+assembly_id: bdh-gpu-streaming-reference-v1
+profile_id: runpod-pod-v1
+task:
+  kind: synthetic_associative_recall_streaming_v1
+  config:
+    symbols: 8
+    associations_per_sequence: 3
+    batch_size: 16
+training:
+  steps: 512
+  learning_rate: 0.003
+  device: cuda
+data:
+  training:
+    kind: generated_synthetic_associative_recall_streaming_v1
+    no_overlap_with:
+      - synthetic-associative-recall-streaming-s8-a3-validation-v1
+      - synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-streaming-s8-a3-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+seeds: [11, 17, 23]
+metrics:
+  primary: golden_evaluation_retained_state_query_accuracy
+research_objective_id: bdh-streaming-state-mechanism-v1
+budget:
+  maximum_runtime_minutes: 30
+  maximum_cost_usd: 0.20

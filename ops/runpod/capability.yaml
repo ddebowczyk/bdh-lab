@@ -4,7 +4,7 @@ summary: Plan, run, cost, and clean up bounded Runpod Pod experiments.
 owns:
   - ops/runpod/
   - justfiles/provider.just
-  - profiles/runpod-pod-v1.yaml
+  - profiles/runpod-pod-v*.yaml
   - docs/runpod.md
 reads:
   - experiments/*.yaml

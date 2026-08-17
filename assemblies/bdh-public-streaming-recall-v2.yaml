@@ -1,0 +1,28 @@
+schema_version: 2
+id: bdh-public-streaming-recall-v2
+status: active
+summary: Small public-BDH-conformant RoPE state-space model for a controlled retention curve.
+task_family: synthetic-associative-recall-long-stream
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: activation
+    component_id: activation-positive-relu-v1
+  - role: recurrent-memory
+    component_id: memory-bdh-public-rope-rho-v1
+implementation:
+  kind: bdh_public_streaming_recall_v1
+  config:
+    hidden_size: 16
+    heads: 2
+    layers: 2
+    mlp_internal_dim_multiplier: 4
+    dropout: 0.0
+decision:
+  rationale: >-
+    Use the exact public attention and shared low-rank block structure, with
+    only the algebraically equivalent fixed recurrent state at inference.
+  evidence:
+    - research/evidence/bdh-public-baseline-conformance-v1.md
+    - tests/test_models.py
+research_objective_id: bdh-public-long-stream-retention-v1

@@ -1,0 +1,12 @@
+schema_version: 2
+id: synthetic-associative-recall-capacity-diagnostic-s8-a3-validation-v3
+status: active
+summary: Fresh fixed-query short-stream validation split for the capacity diagnostic.
+kind: synthetic_associative_recall_long_stream_v2
+role: validation
+config: {symbols: 8, associations_per_sequence: 3, query_association_index: 0}
+generation:
+  algorithm: torch-synthetic-associative-recall-long-stream-v2
+  seed: bdh-public-capacity-diagnostic-s8-a3-validation-v3
+  count: 64
+  checksum_sha256: 36d003fc327a2ae5b0266e222ca4ee8573bb672553f903552b273fb398865098

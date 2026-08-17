@@ -1,8 +1,157 @@
+# Operating-system and editor files
 .DS_Store
+._*
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local environment and secret material
 .env
+.env.*
+!.env.example
+!.env.template
+*.pem
+*.key
+
+# Python interpreter environments
 .venv/
+**/.venv/
+venv/
+**/venv/
+env/
+ENV/
+__pypackages__/
+
+# Python bytecode and caches
 __pycache__/
-.pytest_cache/
-.ruff_cache/
+**/__pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+*$py.class
+
+# Python tooling caches
+.pytest_cache/
+**/.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+**/.mypy_cache/
+.pyre/
+.pytype/
+.hypothesis/
+.tox/
+.nox/
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python packaging and coverage output
+*.egg-info/
+*.egg
+.eggs/
+*.whl
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Rust build outputs, backups, and toolchain state
+# Cargo.lock is deliberately NOT ignored: it is source, not a build artifact.
+target/
+**/target/
+**/*.rs.bk
+*.pdb
+.cargo/
+**/.cargo/
+.rustup/
+
+# Node and JavaScript dependencies, caches, and build output
+node_modules/
+**/node_modules/
+.npm/
+.pnpm-store/
+.yarn/
+.pnp.*
+.cache/
+**/.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.vite/
+.turbo/
+.output/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Shared build, distribution, and temporary output
+build/
+**/build/
+dist/
+**/dist/
+out/
+**/out/
+tmp/
+**/tmp/
+temp/
+**/temp/
+logs/
+**/logs/
+*.log
+*.pid
+*.orig
+*.rej
+*.bak
+
+# Experiment run outputs and local run state
 var/
+**/var/runs/
+
+# Model weights, checkpoints, and tensor dumps are never versioned here.
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.bin
+*.gguf
+*.npy
+*.npz
+*.h5
+*.hdf5
+*.pkl
+*.joblib
+checkpoints/
+**/checkpoints/
+wandb/
+**/wandb/
+runs/
+mlruns/
+lightning_logs/
+
+# Local databases and agent tooling state
+*.db
+*.sqlite
+*.sqlite3
+.beads/
+**/.beads/
+.dolt/
+**/.dolt/
+.wb/
+**/.wb/
+.direnv/
+
+# Vendored upstream research clones. These are independent checkouts kept for
+# reference only. Fifteen carry their own .git directory and would commit as
+# bare gitlinks that clone as empty directories; pathwaycom-bdh-2b0d7a45 is a
+# plain tree that would be committed wholesale. All of them build their own
+# Rust, Python, and Node artifacts. Keep the entire import out of this repo.
+resources/github/*
+# Keep the hand-authored provenance index that records what those clones are.
+!resources/github/README.md

@@ -1,0 +1,35 @@
+schema_version: 1
+id: memory-bdh-gpu-rho-v1
+kind: recurrent-linear-attention-state
+status: active
+summary: Per-layer and per-head rho state for causal low-rank linear attention.
+hypothesis:
+  claim: >-
+    A fixed rho tensor can carry causal key-value associations between inference
+    calls without storing prior tokens.
+  expected_effect: >-
+    Step-wise execution matches batched causal linear attention and state size
+    does not grow with the number of prior tokens.
+  falsifier: >-
+    Step-wise and batched values diverge, causality fails, or retained state
+    gives no useful difference from reset state on the fixed episode task.
+lineage:
+  basis:
+    - Original BDH paper, Equation 8 and Appendix E.
+    - research/sources/bdh-public-boundary-v1.md
+interfaces:
+  inputs: [head_key, head_value, prior_rho]
+  outputs: [attention_value, updated_rho]
+  state: layer-head-key-by-value-tensor
+parameters:
+  update: rho = rho + outer(key, value)
+  read: query @ rho
+  transition: identity-U-for-reference-test
+decision:
+  rationale: >-
+    Test the public BDH-GPU state-space mechanism without claiming the authors'
+    exact internal training configuration.
+  evidence:
+    - research/sources/bdh-public-boundary-v1.md
+    - tests/test_models.py
+research_objective_id: bdh-streaming-state-mechanism-v1

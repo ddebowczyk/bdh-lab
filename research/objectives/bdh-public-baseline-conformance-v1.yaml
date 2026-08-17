@@ -1,0 +1,53 @@
+schema_version: 1
+id: bdh-public-baseline-conformance-v1
+status: concluded
+question: >-
+  Can the lab's state-space BDH implementation match the pinned public
+  Pathway baseline with RoPE, then preserve that computation across calls?
+decision: >-
+  Decide whether the long-stream study may use this implementation as a
+  public-baseline-conformant streaming variant.
+scope:
+  includes:
+    - A pinned public source revision and code-level boundary.
+    - RoPE-compatible batched conformance with identical weights and tokens.
+    - Chunked and step-wise recurrent-state conformance.
+  excludes:
+    - Reproduction of reported large-scale training results.
+    - Claims about private BDH-CQ details.
+    - Any long-stream quality conclusion before conformance passes.
+gates:
+  - id: public-source-snapshot
+    status: passed
+    exit_criteria: >-
+      A public source revision, code hashes, architecture behavior, and
+      excluded claims are recorded.
+    evidence:
+      - kind: source
+        path: research/sources/bdh-public-baseline-snapshot-v1.md
+  - id: batched-public-conformance
+    status: passed
+    exit_criteria: >-
+      With identical weights and inputs, the local RoPE batched path matches
+      the pinned public baseline logits at every token.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-baseline-conformance-v1.md
+      - kind: test
+        path: tests/test_models.py
+  - id: streaming-chunk-conformance
+    status: passed
+    exit_criteria: >-
+      RoPE state-space step and chunked execution match the conformance-tested
+      batched path for logits and recurrent state at every boundary.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-baseline-conformance-v1.md
+      - kind: test
+        path: tests/test_models.py
+next_action:
+  kind: experiment
+  target: research/programs/bdh-promise-v1.yaml
+  completion: >-
+    Define a separate long-stream retention objective and its fixed split
+    protocol before training a public-baseline-conformant streaming model.

@@ -1,0 +1,50 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab checksum-pinned long-stream dataset v2
+type: object
+additionalProperties: false
+required: [schema_version, id, status, summary, kind, role, config, generation]
+properties:
+  schema_version:
+    const: 2
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  status:
+    enum: [active, retired]
+  summary:
+    type: string
+    minLength: 1
+  kind:
+    const: synthetic_associative_recall_long_stream_v2
+  role:
+    enum: [validation, golden_evaluation]
+  config:
+    type: object
+    additionalProperties: false
+    required: [symbols, associations_per_sequence, query_association_index]
+    properties:
+      symbols:
+        type: integer
+        minimum: 2
+      associations_per_sequence:
+        type: integer
+        minimum: 1
+      query_association_index:
+        type: integer
+        minimum: 0
+  generation:
+    type: object
+    additionalProperties: false
+    required: [algorithm, seed, count, checksum_sha256]
+    properties:
+      algorithm:
+        const: torch-synthetic-associative-recall-long-stream-v2
+      seed:
+        type: string
+        minLength: 1
+      count:
+        type: integer
+        minimum: 1
+      checksum_sha256:
+        type: string
+        pattern: '^[a-f0-9]{64}$'

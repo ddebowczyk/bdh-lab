@@ -1,0 +1,14 @@
+schema_version: 1
+id: synthetic-associative-recall-streaming-s8-a3-validation-v1
+status: active
+summary: Fixed validation episodes for retained-state associative recall.
+kind: synthetic_associative_recall_streaming_v1
+role: validation
+config:
+  symbols: 8
+  associations_per_sequence: 3
+generation:
+  algorithm: torch-synthetic-associative-recall-streaming-v1
+  seed: bdh-lab-streaming-s8-a3-validation-v1
+  count: 64
+  checksum_sha256: 5feaa46f246a5690b43e34c47950109305422dc0223b02d37ac922b6ea6c928b

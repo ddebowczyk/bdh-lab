@@ -1,0 +1,25 @@
+schema_version: 1
+id: research
+summary: Validate research objectives and programs, then show decision-gate and DAG progress.
+owns:
+  - ops/research/
+  - research/
+  - schemas/v1/research-objective.schema.yaml
+reads:
+  - components/*.yaml
+  - assemblies/*.yaml
+  - experiments/*.yaml
+  - var/runs/**/result.yaml
+  - var/runs/**/cost-*.yaml
+generates: []
+commands:
+  - route: just ops research validate
+    effect: read-only
+  - route: just ops research status
+    effect: read-only
+  - route: just ops research programs
+    effect: read-only
+  - route: just ops research program <program>
+    effect: read-only
+  - route: just ops research plan <objective>
+    effect: read-only

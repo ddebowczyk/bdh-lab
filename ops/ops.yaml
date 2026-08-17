@@ -3,3 +3,4 @@ active:
   operation-control: control
   metadata-integrity: check
   provider-planning: runpod
+  research-control: research

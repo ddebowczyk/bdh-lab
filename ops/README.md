@@ -10,12 +10,22 @@ manifest records owned paths, important inputs, generated outputs, and exposed
 commands. `ops.yaml` explicitly selects the active provider for each operational
 interface.
 
+`ops/research` validates compact objective records and dependency-graph program
+records under `research/`. It shows current decision gates, computed ready
+nodes, and links to evidence, but it cannot change an objective, program, or
+candidate status.
+
 Use these commands:
 
 ```sh
 just ops
 just ops validate
 just ops check all
+just ops research validate
+just ops research status
+just ops research plan research/objectives/<id>.yaml
+just ops research programs
+just ops research program research/programs/<id>.yaml
 just ops runpod doctor
 just ops runpod plan <experiment>
 just ops runpod launch <experiment>

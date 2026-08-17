@@ -1,0 +1,51 @@
+schema_version: 1
+id: bdh-public-shakespeare-calibration-v1
+status: active
+question: >-
+  Can the pinned public BDH language model train under a checksum-pinned Tiny
+  Shakespeare protocol with trustworthy validation and resource measurements?
+decision: >-
+  Open the matched Shakespeare comparison only if the public and conformant
+  recurrent paths train without numerical or data-integrity failures and
+  produce reproducible validation, throughput, and memory evidence.
+scope:
+  includes:
+    - The pinned public Pathway BDH source and byte-level Tiny Shakespeare trainer.
+    - A checksum-pinned train and validation split with bits-per-byte evaluation.
+    - Validation loss, samples, throughput, latency, peak memory, and checkpoint provenance.
+    - A bounded CUDA calibration before any Europarl training.
+  excludes:
+    - A claim that Tiny Shakespeare tests reasoning or long-stream memory.
+    - A claim of Transformer parity before a matched comparison exists.
+    - Modification of completed v1 components, experiments, or evidence.
+    - Reproduction of private BDH-CQ behavior.
+gates:
+  - id: protocol-freeze
+    status: current
+    exit_criteria: >-
+      The public train.py source, Tiny Shakespeare bytes, document-aware split,
+      evaluator, model configuration, metrics, seeds, and local and Runpod
+      budgets are checksum-pinned in new versioned records that pass all schemas.
+    evidence:
+      - kind: source
+        path: research/sources/bdh-public-baseline-snapshot-v1.md
+  - id: local-and-cuda-smoke
+    status: pending
+    exit_criteria: >-
+      The public dense and conformant recurrent paths complete bounded smoke
+      training, emit finite loss and gradients, evaluate the same held-out
+      bytes, and record device, throughput, peak memory, and provenance.
+    evidence: []
+  - id: calibration-decision
+    status: pending
+    exit_criteria: >-
+      At least one full public-configuration calibration run completes with a
+      reproducible validation curve and cost record, and the evidence states
+      whether a matched multi-model comparison is technically justified.
+    evidence: []
+next_action:
+  kind: implementation
+  target: experiments/bdh-public-shakespeare-calibration-v1.yaml
+  completion: >-
+    Add and validate new source, dataset, assembly, profile, and experiment
+    records without modifying completed v1 records.

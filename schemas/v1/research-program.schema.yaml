@@ -1,0 +1,98 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: BDH Lab research program v1
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - id
+  - status
+  - title
+  - question
+  - decision
+  - source_plan
+  - nodes
+properties:
+  schema_version:
+    const: 1
+  id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+  status:
+    enum: [active, concluded, parked]
+  title:
+    type: string
+    minLength: 1
+  question:
+    type: string
+    minLength: 1
+  decision:
+    type: string
+    minLength: 1
+  source_plan:
+    type: string
+    minLength: 1
+  nodes:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - kind
+        - status
+        - summary
+        - requires
+        - evidence
+        - next_action
+      properties:
+        id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*$'
+        kind:
+          enum: [source, implementation, experiment, analysis, decision]
+        status:
+          enum: [pending, current, passed, failed, parked]
+        summary:
+          type: string
+          minLength: 1
+        objective_id:
+          type: string
+          pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+        requires:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [node_id, outcome]
+            properties:
+              node_id:
+                type: string
+                pattern: '^[a-z][a-z0-9-]*$'
+              outcome:
+                enum: [passed, failed]
+        evidence:
+          type: array
+          items:
+            oneOf:
+              - type: object
+                additionalProperties: false
+                required: [kind, path]
+                properties:
+                  kind:
+                    enum: [source, test]
+                  path:
+                    type: string
+                    minLength: 1
+              - type: object
+                additionalProperties: false
+                required: [kind, experiment_id]
+                properties:
+                  kind:
+                    const: experiment
+                  experiment_id:
+                    type: string
+                    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'
+        next_action:
+          type: string
+          minLength: 1

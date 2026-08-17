@@ -1,0 +1,24 @@
+schema_version: 1
+id: transformer-streaming-control-v1
+status: active
+summary: Small causal-Transformer control for the retained-state task family.
+task_family: synthetic-associative-recall-streaming
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: attention
+    component_id: attention-causal-softmax-v1
+implementation:
+  kind: transformer_recall_v1
+  config:
+    hidden_size: 16
+    heads: 2
+    layers: 2
+    dropout: 0.0
+decision:
+  rationale: >-
+    Compare a bounded recurrent state with a causal attention control under the
+    same data, seed, and optimization budget.
+  evidence:
+    - research/sources/bdh-public-boundary-v1.md
+research_objective_id: bdh-streaming-state-mechanism-v1

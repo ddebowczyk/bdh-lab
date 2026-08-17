@@ -21,6 +21,18 @@ checksum-pinned held-out samples                |
                                    training rejects held-out examples
 ```
 
+Research objectives sit above this chain. They state one decision, scope, and
+current verification gate; source assessments and immutable run evidence link
+back to that objective. This is deliberately not a task tracker: an active
+objective has one current gate, while a concluded objective keeps its decision,
+evidence, and the condition for a separately scoped follow-up.
+
+A research program is a separate, versioned dependency graph above objectives.
+It records only node routing, required pass/fail outcomes, progress, and links
+to evidence. `ops/research` derives which pending nodes are ready; it never
+starts a node or changes a status. This allows branches and merges without
+duplicating experiment settings or becoming a second task tracker.
+
 A component describes one replaceable choice, such as a memory update rule,
 gate, positional method, or optimizer. An assembly binds specific component
 versions to a model implementation. An experiment binds the assembly to a

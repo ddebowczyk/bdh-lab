@@ -1,0 +1,54 @@
+schema_version: 2
+id: synthetic-associative-recall-public-bdh-long-stream-v2
+status: active
+summary: Three-seed fixed-delay retention curve for the public-BDH-conformant streaming adapter.
+hypothesis:
+  claim: >-
+    A trained public-BDH-conformant recurrent state preserves associations at
+    longer fixed delays better than a reset state, with fixed state size.
+  expected_effect: >-
+    Retained golden accuracy exceeds reset golden accuracy by at least 0.10 on
+    both a5 and a7 for each of three seeds.
+  falsifier: >-
+    Any seed misses either required retained-reset margin, state size grows,
+    or a run fails to produce a valid record.
+lineage:
+  basis:
+    - research/evidence/bdh-public-baseline-conformance-v1.md
+    - research/objectives/bdh-public-long-stream-retention-v1.yaml
+assembly_id: bdh-public-streaming-recall-v2
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_long_stream_v2
+  config: {symbols: 8, associations_per_sequence: 3, batch_size: 16}
+training:
+  steps: 1024
+  learning_rate: 0.003
+  device: cpu
+data:
+  training:
+    kind: generated_synthetic_associative_recall_long_stream_v2
+    no_overlap_with:
+      - synthetic-associative-recall-long-stream-s8-a3-validation-v2
+      - synthetic-associative-recall-long-stream-s8-a3-golden-evaluation-v2
+      - synthetic-associative-recall-long-stream-s8-a5-validation-v2
+      - synthetic-associative-recall-long-stream-s8-a5-golden-evaluation-v2
+      - synthetic-associative-recall-long-stream-s8-a7-validation-v2
+      - synthetic-associative-recall-long-stream-s8-a7-golden-evaluation-v2
+  validation_dataset_id: synthetic-associative-recall-long-stream-s8-a3-validation-v2
+  golden_evaluation_dataset_id: synthetic-associative-recall-long-stream-s8-a3-golden-evaluation-v2
+  evaluation_curve:
+    - id: long-delay-a5
+      validation_dataset_id: synthetic-associative-recall-long-stream-s8-a5-validation-v2
+      golden_evaluation_dataset_id: synthetic-associative-recall-long-stream-s8-a5-golden-evaluation-v2
+    - id: long-delay-a7
+      validation_dataset_id: synthetic-associative-recall-long-stream-s8-a7-validation-v2
+      golden_evaluation_dataset_id: synthetic-associative-recall-long-stream-s8-a7-golden-evaluation-v2
+seeds: [11, 17, 23]
+metrics:
+  primary: golden_evaluation_retained_state_query_accuracy
+decision_rule:
+  minimum_retained_reset_margin: 0.10
+  required_curve_ids: [long-delay-a5, long-delay-a7]
+  required_seed_count: 3
+research_objective_id: bdh-public-long-stream-retention-v1

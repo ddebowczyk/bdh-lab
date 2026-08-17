@@ -56,6 +56,22 @@ def test_runpod_smoke_plan_is_small_and_capped() -> None:
     )
 
 
+def test_runpod_v2_plan_uses_current_cuda_compatible_gpu_types() -> None:
+    plan = render_pod_plan(
+        repository_root()
+        / "experiments"
+        / "synthetic-associative-recall-bdh-gpu-streaming-runpod-v2.yaml"
+    )
+
+    assert plan.command[plan.command.index("--gpu-id") + 1] == "NVIDIA GeForce RTX 4090"
+    assert plan.command[plan.command.index("--min-cuda-version") + 1] == "13.0"
+    assert plan.gpu_type_ids == (
+        "NVIDIA GeForce RTX 4090",
+        "NVIDIA RTX A6000",
+        "NVIDIA GeForce RTX 3090",
+    )
+
+
 def test_remote_command_contains_reproducibility_evidence_not_a_credential(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -74,6 +90,7 @@ def test_remote_command_contains_reproducibility_evidence_not_a_credential(
     assert "template-safe-to-record" in command
     assert "apt-get install -y --no-install-recommends pkg-config libssl-dev" in command
     assert "cargo install --locked yaml-schema --version 0.9.1" in command
+    assert "torch.cuda.is_available" in command
 
 
 def test_proposed_runpod_experiment_cannot_create_a_pod(monkeypatch: pytest.MonkeyPatch) -> None:

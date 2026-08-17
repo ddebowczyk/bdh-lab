@@ -150,6 +150,9 @@ def render_pod_plan(experiment_path: Path) -> PodPlan:
     ]
     if pod["public_ip"]:
         command_parts.append("--public-ip")
+    minimum_cuda = pod.get("min_cuda_version")
+    if minimum_cuda is not None:
+        command_parts.extend(["--min-cuda-version", str(minimum_cuda)])
     return PodPlan(
         experiment_id=str(experiment.data["id"]),
         experiment_path=experiment.path.relative_to(ROOT).as_posix(),
@@ -431,6 +434,13 @@ def render_remote_command(plan: PodPlan, pod_id: str, snapshot_sha256: str) -> s
     assignments = " ".join(
         f"{name}={shlex.quote(value)}" for name, value in environment.items() if value
     )
+    cuda_probe = (
+        "import torch; "
+        "assert torch.cuda.is_available(), 'CUDA is not available in this environment'; "
+        "print(torch.cuda.get_device_name(0))"
+    )
+    initial_cuda_probe = f"{python_command} -c {shlex.quote(cuda_probe)}"
+    synchronized_cuda_probe = f"uv run {python_command} -c {shlex.quote(cuda_probe)}"
     return (
         "set -eu; "
         "if ! command -v uv >/dev/null 2>&1; then "
@@ -450,7 +460,10 @@ def render_remote_command(plan: PodPlan, pod_id: str, snapshot_sha256: str) -> s
         "fi; "
         "export PATH=\"$HOME/.cargo/bin:$PATH\"; "
         f"cd {shlex.quote(checkout)}; "
+        "nvidia-smi --query-gpu=name,driver_version --format=csv,noheader >&2; "
+        f"{initial_cuda_probe} >&2; "
         "uv sync --frozen --extra dev; "
+        f"{synchronized_cuda_probe} >&2; "
         f"{assignments} uv run bdh-lab run {shlex.quote(plan.experiment_path)} "
         "--runner-provider runpod"
     )
@@ -498,6 +511,11 @@ def _retrieve_results(plan: PodPlan, ssh_command: tuple[str, ...]) -> tuple[Path
 def launch_remote_experiment(plan: PodPlan, *, keep_pod: bool = False) -> RemoteRun:
     """Create, execute, retrieve, cost, and normally terminate one isolated Pod."""
 
+    existing_root = ROOT / plan.artifacts_root / plan.experiment_id
+    if existing_root.exists() and any(existing_root.rglob("result.yaml")):
+        raise MetadataError(
+            f"{plan.experiment_id} already has immutable run evidence; create a new version"
+        )
     pod = create_pod(plan)
     executable, _command = _apply_inputs(plan)
     started_at = _time_now()

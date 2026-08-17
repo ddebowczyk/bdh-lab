@@ -3,6 +3,7 @@ set positional-arguments := true
 
 mod control 'control/justfile'
 mod check 'check/justfile'
+mod research 'research/justfile'
 mod runpod 'runpod/justfile'
 
 # Show the repository-operation command surface.
@@ -13,3 +14,4 @@ default:
 validate:
     just control validate
     just --justfile ../justfile --working-directory .. metadata validate
+    just research validate

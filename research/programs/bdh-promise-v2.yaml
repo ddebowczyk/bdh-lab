@@ -1,0 +1,211 @@
+schema_version: 1
+id: bdh-promise-v2
+status: active
+title: BDH language, streaming-memory, efficiency, and attribution program
+question: >-
+  Does a public-BDH-conformant recurrent model provide distinct practical or
+  scientific value over matched Transformers and ordinary linear attention?
+decision: >-
+  Continue toward larger scaling or a separate document-stream application
+  only if controlled language, memory, and efficiency evidence places BDH on a
+  useful quality, memory, latency, sample-efficiency, or interpretability frontier.
+source_plan: docs/plans/20260814T141315+0200-bdh-promise-v2/README.md
+nodes:
+  - id: inherited-v1-evidence
+    kind: source
+    status: passed
+    summary: >-
+      Preserve public-source conformance and the narrow synthetic failure as
+      the immutable starting boundary for the successor program.
+    requires: []
+    evidence:
+      - kind: source
+        path: research/sources/bdh-public-baseline-snapshot-v1.md
+      - kind: source
+        path: research/evidence/bdh-public-baseline-conformance-v1.md
+      - kind: source
+        path: research/evidence/bdh-public-long-stream-retention-v1.md
+      - kind: source
+        path: research/evidence/bdh-public-capacity-diagnostic-v1.md
+    next_action: Freeze a measured public Tiny Shakespeare calibration protocol.
+  - id: public-shakespeare-calibration
+    kind: experiment
+    status: current
+    summary: >-
+      Reproduce and instrument the pinned public byte-level language-model
+      demonstration before making comparative claims.
+    objective_id: bdh-public-shakespeare-calibration-v1
+    requires:
+      - node_id: inherited-v1-evidence
+        outcome: passed
+    evidence: []
+    next_action: Complete the protocol-freeze gate in the linked objective.
+  - id: state-capacity-and-stability
+    kind: analysis
+    status: pending
+    summary: >-
+      Measure state growth, effective rank, cross-talk, overwrite behavior,
+      positional dynamics, and detach/reset semantics before a new memory claim.
+    requires:
+      - node_id: inherited-v1-evidence
+        outcome: passed
+    evidence: []
+    next_action: Define a versioned stability objective after calibration records are frozen.
+  - id: repaired-memory-benchmark
+    kind: experiment
+    status: pending
+    summary: >-
+      Separate capacity, delay, distractors, and overwrites under next-token and
+      query objectives with matched Transformer and linear-attention controls.
+    requires:
+      - node_id: state-capacity-and-stability
+        outcome: passed
+    evidence: []
+    next_action: Register fresh document-level splits and a three-seed matched protocol.
+  - id: memory-failure-review
+    kind: decision
+    status: pending
+    summary: >-
+      Record whether a failed repaired benchmark rejects BDH memory, exposes a
+      bounded implementation defect, or leaves language value unresolved.
+    requires:
+      - node_id: repaired-memory-benchmark
+        outcome: failed
+    evidence: []
+    next_action: Permit at most one fresh-split, one-factor diagnostic.
+  - id: matched-shakespeare-comparison
+    kind: experiment
+    status: pending
+    summary: >-
+      Compare public dense BDH, conformant recurrent BDH, a causal Transformer,
+      and ordinary linear attention under parameter- and compute-matched views.
+    requires:
+      - node_id: public-shakespeare-calibration
+        outcome: passed
+    evidence: []
+    next_action: Freeze model sizes, raw-byte splits, token budgets, metrics, and seeds.
+  - id: calibration-failure-review
+    kind: decision
+    status: pending
+    summary: >-
+      Diagnose source, data, numerical, or resource failure without treating a
+      broken calibration pipeline as architecture evidence.
+    requires:
+      - node_id: public-shakespeare-calibration
+        outcome: failed
+    evidence: []
+    next_action: Fix only reproducibility defects; otherwise record a no-go decision.
+  - id: recurrent-kernel-efficiency
+    kind: implementation
+    status: pending
+    summary: >-
+      Compare dense and recurrent conformant execution across chunk and stream
+      lengths for numerical parity, state bytes, memory, throughput, and latency.
+    requires:
+      - node_id: public-shakespeare-calibration
+        outcome: passed
+    evidence: []
+    next_action: Register a bounded CUDA kernel benchmark with no quality claim.
+  - id: shakespeare-failure-review
+    kind: decision
+    status: pending
+    summary: >-
+      Decide whether a failed matched comparison is an optimization issue, a
+      quality no-go, or a reason to retain only the mechanism reference.
+    requires:
+      - node_id: matched-shakespeare-comparison
+        outcome: failed
+    evidence: []
+    next_action: Allow one pre-registered optimizer or capacity diagnosis only.
+  - id: coherent-europarl-pilot
+    kind: experiment
+    status: pending
+    summary: >-
+      Train on about 120M coherent raw-byte Europarl tokens with carried BDH
+      state and a matched bounded TransformerXL cache.
+    requires:
+      - node_id: matched-shakespeare-comparison
+        outcome: passed
+      - node_id: recurrent-kernel-efficiency
+        outcome: passed
+    evidence: []
+    next_action: Freeze document splits, TBPTT boundaries, hardware, and cost cap.
+  - id: europarl-pilot-failure-review
+    kind: decision
+    status: pending
+    summary: >-
+      Record whether coherent-stream quality, stability, throughput, or cost
+      fails the threshold for architecture attribution and a full study.
+    requires:
+      - node_id: coherent-europarl-pilot
+        outcome: failed
+    evidence: []
+    next_action: Close paid scaling unless one bounded factor has a clear causal defect.
+  - id: bdh-architecture-attribution
+    kind: experiment
+    status: pending
+    summary: >-
+      Attribute any Europarl advantage to shared depth, positive sparse latent
+      state, capacity, positional dynamics, forgetting, gating, or generic state.
+    requires:
+      - node_id: coherent-europarl-pilot
+        outcome: passed
+    evidence: []
+    next_action: Pre-register one-factor ablations at a fixed token and compute budget.
+  - id: full-europarl-study
+    kind: experiment
+    status: pending
+    summary: >-
+      Run up to 1.2B presented tokens for the final BDH candidate and matched
+      controls across at least three seeds with hard cost caps.
+    requires:
+      - node_id: bdh-architecture-attribution
+        outcome: passed
+    evidence: []
+    next_action: Approve only after a measured throughput and total-cost review.
+  - id: full-study-negative-decision
+    kind: decision
+    status: pending
+    summary: >-
+      Preserve the negative quality, memory, runtime, and cost result and state
+      which narrower mechanisms or tools remain useful.
+    requires:
+      - node_id: full-europarl-study
+        outcome: failed
+    evidence: []
+    next_action: Conclude the practical branch without erasing mechanism evidence.
+  - id: sparse-state-and-graph-analysis
+    kind: analysis
+    status: pending
+    summary: >-
+      Test sparsity, graph structure, and concept selectivity against randomized
+      and matched trained controls only after language quality passes.
+    requires:
+      - node_id: full-europarl-study
+        outcome: passed
+    evidence: []
+    next_action: Freeze quantitative interpretability metrics before selecting examples.
+  - id: practical-value-decision
+    kind: decision
+    status: pending
+    summary: >-
+      Decide whether BDH merits larger public scaling, kernel engineering, or a
+      separate permission-aware private document-stream program.
+    requires:
+      - node_id: full-europarl-study
+        outcome: passed
+    evidence: []
+    next_action: Compare quality, memory, latency, sample efficiency, and cost as a frontier.
+  - id: final-research-synthesis
+    kind: decision
+    status: pending
+    summary: >-
+      Separate supported practical and interpretability conclusions from
+      unsupported reasoning, biological, scaling, and BDH-CQ claims.
+    requires:
+      - node_id: sparse-state-and-graph-analysis
+        outcome: passed
+      - node_id: practical-value-decision
+        outcome: passed
+    evidence: []
+    next_action: Publish a claim-evidence matrix and the next funded decision.

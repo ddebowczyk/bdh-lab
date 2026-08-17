@@ -1,0 +1,12 @@
+schema_version: 2
+id: synthetic-associative-recall-capacity-diagnostic-s8-a7-golden-evaluation-v3
+status: active
+summary: Fresh fixed-query long-stream final split for the capacity diagnostic.
+kind: synthetic_associative_recall_long_stream_v2
+role: golden_evaluation
+config: {symbols: 8, associations_per_sequence: 7, query_association_index: 0}
+generation:
+  algorithm: torch-synthetic-associative-recall-long-stream-v2
+  seed: bdh-public-capacity-diagnostic-s8-a7-golden-evaluation-v3
+  count: 128
+  checksum_sha256: eed3af239fd07c74239c1ca97c986732964c76e90f30439a7649396c20f62432

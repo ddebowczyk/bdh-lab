@@ -1,0 +1,12 @@
+schema_version: 2
+id: synthetic-associative-recall-long-stream-s8-a7-validation-v2
+status: active
+summary: Fixed-query long-stream validation split for public BDH retention.
+kind: synthetic_associative_recall_long_stream_v2
+role: validation
+config: {symbols: 8, associations_per_sequence: 7, query_association_index: 0}
+generation:
+  algorithm: torch-synthetic-associative-recall-long-stream-v2
+  seed: bdh-public-long-stream-s8-a7-validation-v2
+  count: 64
+  checksum_sha256: 5bfbc021f65e64697f9f9608c4e97ee9064c139c0b2d1008b6886463140437ba

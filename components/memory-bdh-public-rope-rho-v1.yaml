@@ -1,0 +1,35 @@
+schema_version: 1
+id: memory-bdh-public-rope-rho-v1
+kind: recurrent-linear-attention-state
+status: active
+summary: RoPE-keyed per-layer state that is algebraically conformant to public causal BDH attention.
+hypothesis:
+  claim: >-
+    A fixed per-layer sum of RoPE-rotated key and value outer products can
+    retain causal attention information across calls without a token cache.
+  expected_effect: >-
+    Retained state has a constant byte size and preserves a trained recall
+    advantage over reset state as the retained stream becomes longer.
+  falsifier: >-
+    The recurrent form diverges from the public causal computation, state grows
+    with stream length, or the retained-state margin disappears on long splits.
+lineage:
+  basis:
+    - resources/github/pathwaycom-bdh-2b0d7a45/bdh.py
+    - research/evidence/bdh-public-baseline-conformance-v1.md
+interfaces:
+  inputs: [rope_rotated_key, layer_value, prior_rho, absolute_position]
+  outputs: [attention_value, updated_rho, absolute_position]
+  state: layer-head-rotated-key-by-value-tensor-and-position
+parameters:
+  update: rho = rho + outer(rope(key, position), value)
+  read: rope(query, position) @ rho
+  transition: absolute-positioned-RoPE-state-space-form
+decision:
+  rationale: >-
+    Separate the public RoPE-conformant memory from the earlier no-RoPE
+    Appendix-E reference before testing retention quality.
+  evidence:
+    - research/evidence/bdh-public-baseline-conformance-v1.md
+    - tests/test_models.py
+research_objective_id: bdh-public-long-stream-retention-v1

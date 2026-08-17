@@ -1,0 +1,40 @@
+schema_version: 1
+id: synthetic-associative-recall-bdh-gpu-streaming-smoke-v1
+status: active
+summary: Small local retained-rho versus reset-rho mechanism test.
+hypothesis:
+  claim: >-
+    A paper-derived BDH-GPU rho state retains demonstration information across
+    the explicit inference boundary.
+  expected_effect: >-
+    Held-out retained-state query accuracy exceeds reset-state query accuracy.
+  falsifier: >-
+    Retained state does not exceed reset state, the state boundary fails, or the
+    run cannot write valid evidence.
+lineage:
+  basis:
+    - research/objectives/bdh-streaming-state-mechanism-v1.yaml
+assembly_id: bdh-gpu-streaming-reference-v1
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_streaming_v1
+  config:
+    symbols: 8
+    associations_per_sequence: 3
+    batch_size: 16
+training:
+  steps: 128
+  learning_rate: 0.003
+  device: cpu
+data:
+  training:
+    kind: generated_synthetic_associative_recall_streaming_v1
+    no_overlap_with:
+      - synthetic-associative-recall-streaming-s8-a3-validation-v1
+      - synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-streaming-s8-a3-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+seeds: [7]
+metrics:
+  primary: golden_evaluation_retained_state_query_accuracy
+research_objective_id: bdh-streaming-state-mechanism-v1

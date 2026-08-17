@@ -1,0 +1,30 @@
+schema_version: 1
+id: runpod-pod-v2
+provider: runpod
+summary: >-
+  Current-catalogue CUDA 13 Runpod profile with a remote GPU visibility gate.
+execution:
+  kind: pod
+  command: runpodctl
+  template_id: runpod-torch-v280
+  template_id_environment: RUNPOD_TEMPLATE_ID
+  pod:
+    name_prefix: bdh-lab
+    # Verified in the Runpod GPU catalogue on 2026-08-13. The first choice is
+    # within the USD 0.20 / 30-minute cap at the observed community rate.
+    gpu_type_ids:
+      - NVIDIA GeForce RTX 4090
+      - NVIDIA RTX A6000
+      - NVIDIA GeForce RTX 3090
+    min_cuda_version: '13.0'
+    volume_mount_path: /workspace
+    cloud_type: COMMUNITY
+    public_ip: true
+    container_disk_gb: 30
+    wait_timeout: 15m
+  remote:
+    checkout_path: /workspace/bdh-lab
+    python_command: python3
+    uv_version: 0.9.22
+artifacts:
+  local_root: var/runs

@@ -1,0 +1,19 @@
+# Validate research-objective records and their links without changing state.
+validate:
+    cd ../.. && uv run bdh-lab research validate
+
+# Show active research objectives, their current gate, and their next action.
+status:
+    cd ../.. && uv run bdh-lab research status
+
+# Show all research-program nodes and their computed readiness.
+programs:
+    cd ../.. && uv run bdh-lab research programs
+
+# Resolve one research-program dependency graph without changing its status.
+program program:
+    cd ../.. && uv run bdh-lab research program "{{program}}"
+
+# Resolve an objective and its linked candidates and known run evidence.
+plan objective:
+    cd ../.. && uv run bdh-lab research plan "{{objective}}"

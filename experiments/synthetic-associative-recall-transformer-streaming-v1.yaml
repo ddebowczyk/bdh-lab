@@ -1,0 +1,39 @@
+schema_version: 1
+id: synthetic-associative-recall-transformer-streaming-v1
+status: active
+summary: Three-seed causal-Transformer control on the fixed streaming episodes.
+hypothesis:
+  claim: >-
+    A causal Transformer is a useful full-context control for the BDH-GPU
+    streaming mechanism test.
+  expected_effect: >-
+    The control completes the same fixed episodes with comparable full-context
+    accuracy evidence.
+  falsifier: The control does not complete all requested seeds with valid evidence.
+lineage:
+  basis:
+    - research/objectives/bdh-streaming-state-mechanism-v1.yaml
+assembly_id: transformer-streaming-control-v1
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_streaming_v1
+  config:
+    symbols: 8
+    associations_per_sequence: 3
+    batch_size: 16
+training:
+  steps: 512
+  learning_rate: 0.003
+  device: cpu
+data:
+  training:
+    kind: generated_synthetic_associative_recall_streaming_v1
+    no_overlap_with:
+      - synthetic-associative-recall-streaming-s8-a3-validation-v1
+      - synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+  validation_dataset_id: synthetic-associative-recall-streaming-s8-a3-validation-v1
+  golden_evaluation_dataset_id: synthetic-associative-recall-streaming-s8-a3-golden-evaluation-v1
+seeds: [11, 17, 23]
+metrics:
+  primary: golden_evaluation_query_accuracy
+research_objective_id: bdh-streaming-state-mechanism-v1

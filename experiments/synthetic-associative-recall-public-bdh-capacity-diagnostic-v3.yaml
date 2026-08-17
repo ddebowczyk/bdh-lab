@@ -1,0 +1,55 @@
+schema_version: 2
+id: synthetic-associative-recall-public-bdh-capacity-diagnostic-v3
+status: active
+summary: One-variant fresh-split capacity diagnostic after the failed public-BDH retention curve.
+hypothesis:
+  claim: >-
+    The small reference state is capacity-limited; a fourfold larger state
+    restores at least a 0.10 retained-reset margin on fresh a5 and a7 data.
+  expected_effect: >-
+    Each of the three declared seeds meets the original margin at both longer
+    stream sizes while reporting exactly 32,768 state bytes per example.
+  falsifier: >-
+    Either longer-size margin remains below 0.10, state bytes are not 32,768,
+    or the record fails validation.
+lineage:
+  basis:
+    - research/evidence/bdh-public-long-stream-retention-v1.md
+  parent_experiment_ids:
+    - synthetic-associative-recall-public-bdh-long-stream-v2
+assembly_id: bdh-public-streaming-capacity-diagnostic-v3
+profile_id: local-cpu-v1
+task:
+  kind: synthetic_associative_recall_long_stream_v2
+  config: {symbols: 8, associations_per_sequence: 3, batch_size: 16}
+training:
+  steps: 1024
+  learning_rate: 0.003
+  device: cpu
+data:
+  training:
+    kind: generated_synthetic_associative_recall_long_stream_v2
+    no_overlap_with:
+      - synthetic-associative-recall-capacity-diagnostic-s8-a3-validation-v3
+      - synthetic-associative-recall-capacity-diagnostic-s8-a3-golden-evaluation-v3
+      - synthetic-associative-recall-capacity-diagnostic-s8-a5-validation-v3
+      - synthetic-associative-recall-capacity-diagnostic-s8-a5-golden-evaluation-v3
+      - synthetic-associative-recall-capacity-diagnostic-s8-a7-validation-v3
+      - synthetic-associative-recall-capacity-diagnostic-s8-a7-golden-evaluation-v3
+  validation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a3-validation-v3
+  golden_evaluation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a3-golden-evaluation-v3
+  evaluation_curve:
+    - id: long-delay-a5
+      validation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a5-validation-v3
+      golden_evaluation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a5-golden-evaluation-v3
+    - id: long-delay-a7
+      validation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a7-validation-v3
+      golden_evaluation_dataset_id: synthetic-associative-recall-capacity-diagnostic-s8-a7-golden-evaluation-v3
+seeds: [31, 37, 41]
+metrics:
+  primary: golden_evaluation_retained_state_query_accuracy
+decision_rule:
+  minimum_retained_reset_margin: 0.10
+  required_curve_ids: [long-delay-a5, long-delay-a7]
+  required_seed_count: 3
+research_objective_id: bdh-public-capacity-diagnostic-v1

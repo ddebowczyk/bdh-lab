@@ -1,0 +1,30 @@
+schema_version: 1
+id: bdh-gpu-streaming-reference-v1
+status: active
+summary: >-
+  Paper-derived BDH-GPU Appendix E reference with state-space causal linear
+  attention.
+task_family: synthetic-associative-recall-streaming
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: activation
+    component_id: activation-positive-relu-v1
+  - role: recurrent-memory
+    component_id: memory-bdh-gpu-rho-v1
+implementation:
+  kind: bdh_gpu_streaming_recall_v1
+  config:
+    hidden_size: 16
+    particles: 64
+    heads: 2
+    layers: 2
+    dropout: 0.0
+decision:
+  rationale: >-
+    Create a proposed reference for the public tensor equations before any
+    quality or efficiency claim.
+  evidence:
+    - research/sources/bdh-public-boundary-v1.md
+    - tests/test_models.py
+research_objective_id: bdh-streaming-state-mechanism-v1

@@ -85,3 +85,6 @@ properties:
         type: array
         items:
           type: string
+  research_objective_id:
+    type: string
+    pattern: '^[a-z][a-z0-9-]*-v[1-9][0-9]*$'

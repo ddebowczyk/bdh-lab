@@ -20,6 +20,7 @@ def test_smoke_experiment_writes_resolved_inputs_and_metrics(tmp_path: Path) -> 
 
     assert result["status"] == "completed"
     assert result["resolved"]["assembly"]["id"] == "bdh-fastweight-recall-v1"
+    assert len(result["provenance"]["source_snapshot_sha256"]) == 64
     assert 0.0 <= result["metrics"]["validation_query_accuracy"] <= 1.0
     assert 0.0 <= result["metrics"]["golden_evaluation_query_accuracy"] <= 1.0
     assert result["provenance"]["validation_dataset_id"] == (

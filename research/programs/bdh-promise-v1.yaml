@@ -1,0 +1,109 @@
+schema_version: 1
+id: bdh-promise-v1
+status: concluded
+title: BDH public-baseline and long-stream promise program
+question: >-
+  Does a public-BDH-GPU-conformant streaming variant provide a useful
+  long-context quality, memory, and runtime trade-off?
+decision: >-
+  Continue toward language-scale study only if public conformance and a
+  controlled long-stream comparison show a material retained-state benefit.
+source_plan: docs/plans/20260813T172428+0200-bdh-promise-program/README.md
+nodes:
+  - id: public-source-snapshot
+    kind: source
+    status: passed
+    summary: Pin the public implementation and record its exact conformance boundary.
+    objective_id: bdh-public-baseline-conformance-v1
+    requires: []
+    evidence:
+      - kind: source
+        path: research/sources/bdh-public-baseline-snapshot-v1.md
+    next_action: Start public-baseline conformance with identical weights and inputs.
+  - id: public-baseline-conformance
+    kind: implementation
+    status: passed
+    summary: Add a RoPE-keyed recurrent state and prove batched and chunked conformance.
+    objective_id: bdh-public-baseline-conformance-v1
+    requires:
+      - node_id: public-source-snapshot
+        outcome: passed
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-baseline-conformance-v1.md
+      - kind: test
+        path: tests/test_models.py
+    next_action: Define the fixed long-stream retention protocol.
+  - id: long-stream-retention-curve
+    kind: experiment
+    status: failed
+    summary: Measure quality, interference, state bytes, and runtime across stream lengths.
+    requires:
+      - node_id: public-baseline-conformance
+        outcome: passed
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-long-stream-retention-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-public-bdh-long-stream-v2
+    objective_id: bdh-public-long-stream-retention-v1
+    next_action: Run the registered three-seed curve without changing its golden protocol.
+  - id: retention-failure-diagnosis
+    kind: analysis
+    status: passed
+    objective_id: bdh-public-capacity-diagnostic-v1
+    summary: Attribute a failed retention curve to capacity, positional state, or cross-talk.
+    requires:
+      - node_id: long-stream-retention-curve
+        outcome: failed
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-capacity-diagnostic-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-public-bdh-capacity-diagnostic-v3
+    next_action: Conclude the practical long-stream branch; capacity alone was not robust.
+  - id: bdh-attribution-and-scaling
+    kind: experiment
+    status: parked
+    summary: Attribute a passing result to BDH-specific architectural choices.
+    requires:
+      - node_id: long-stream-retention-curve
+        outcome: passed
+    evidence: []
+    next_action: Not opened because the long-stream retention advance gate failed.
+  - id: language-quality-and-efficiency
+    kind: experiment
+    status: parked
+    summary: Test matched small language models at training and longer evaluation lengths.
+    requires:
+      - node_id: bdh-attribution-and-scaling
+        outcome: passed
+    evidence: []
+    next_action: Not opened because the required attribution branch was not justified.
+  - id: sparse-and-graph-analysis
+    kind: analysis
+    status: parked
+    summary: Analyze sparse activations and graph structure only for a quality-passing candidate.
+    requires:
+      - node_id: bdh-attribution-and-scaling
+        outcome: passed
+    evidence: []
+    next_action: Not opened because the required attribution branch was not justified.
+  - id: larger-quality-cost-study
+    kind: experiment
+    status: parked
+    summary: Pre-register a larger multi-seed quality and cost study after both prior branches pass.
+    requires:
+      - node_id: language-quality-and-efficiency
+        outcome: passed
+      - node_id: sparse-and-graph-analysis
+        outcome: passed
+    evidence: []
+    next_action: Not opened because neither required predecessor branch passed.
+  - id: bdh-cq-latent-workspace-exploration
+    kind: decision
+    status: parked
+    summary: Keep proprietary BDH-CQ ideas separate from public-BDH reproduction claims.
+    requires: []
+    evidence: []
+    next_action: Start a separate original-design program only with a distinct hypothesis.

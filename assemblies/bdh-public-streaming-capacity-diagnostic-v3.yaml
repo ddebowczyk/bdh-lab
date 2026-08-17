@@ -1,0 +1,28 @@
+schema_version: 2
+id: bdh-public-streaming-capacity-diagnostic-v3
+status: active
+summary: Capacity-only public-BDH streaming diagnostic with fourfold larger recurrent state.
+task_family: synthetic-associative-recall-long-stream
+components:
+  - role: representation
+    component_id: representation-token-embedding-v1
+  - role: activation
+    component_id: activation-positive-relu-v1
+  - role: recurrent-memory
+    component_id: memory-bdh-public-rope-rho-v1
+implementation:
+  kind: bdh_public_streaming_recall_v1
+  config:
+    hidden_size: 32
+    heads: 2
+    layers: 2
+    mlp_internal_dim_multiplier: 4
+    dropout: 0.0
+decision:
+  rationale: >-
+    Double hidden size and latent capacity while keeping the public computation,
+    task, training budget, and fixed-query protocol unchanged. This makes the
+    recurrent state 32,768 rather than 8,192 bytes per example.
+  evidence:
+    - research/evidence/bdh-public-long-stream-retention-v1.md
+research_objective_id: bdh-public-capacity-diagnostic-v1

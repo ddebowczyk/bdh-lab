@@ -1,0 +1,41 @@
+schema_version: 1
+id: bdh-public-capacity-diagnostic-v1
+status: concluded
+question: >-
+  Is the failed a7 retention margin caused by the small public-BDH state
+  capacity rather than by the recurrent-state mechanism itself?
+decision: >-
+  If a larger state fails again on fresh a5 and a7 data, close this practical
+  toy-task direction. A passing diagnostic is only evidence to design a new
+  attribution program; it does not reverse the failed pre-registered curve.
+scope:
+  includes:
+    - One capacity-only architecture variant.
+    - Fresh checksum-pinned data that does not overlap the completed curve.
+    - One capacity-only architecture variant and three fixed seeds.
+  excludes:
+    - Multiple tuning trials, optimizer changes, or golden-split selection.
+    - A claim that capacity alone establishes BDH-specific value.
+gates:
+  - id: capacity-diagnostic
+    status: failed
+    exit_criteria: >-
+      Three fresh-split seeds complete with a fourfold larger state and report
+      a5 and a7 retained-reset margins, state bytes, throughput, and latency.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-capacity-diagnostic-v1.md
+      - kind: experiment
+        experiment_id: synthetic-associative-recall-public-bdh-capacity-diagnostic-v3
+  - id: decision
+    status: passed
+    exit_criteria: >-
+      Evidence states whether the capacity result closes the direction or
+      justifies a separately registered attribution program.
+    evidence:
+      - kind: source
+        path: research/evidence/bdh-public-capacity-diagnostic-v1.md
+next_action:
+  kind: decision
+  target: research/programs/bdh-promise-v1.yaml
+  completion: Conclude the practical long-stream branch without opening downstream studies.
